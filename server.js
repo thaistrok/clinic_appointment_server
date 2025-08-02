@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-
+const morgan = require('morgan');
 
 
 // Load environment variables
@@ -24,15 +24,16 @@ const userRoutes = require('./routes/userRoutes');
 connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: ['http://localhost:5175','http://127.0.0.1:5175'],
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'))
 
 // Routes
 app.use('/api/auth', AuthRouter);
