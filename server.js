@@ -51,6 +51,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
+// Add this to your server.js
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
+// Add this to your server.js
+app.get('/', (req, res) => {
+  res.json({ message: 'Clinic Appointment API is running!' });
+});
+
 // Add this after the middleware setup and before the 404 handler
 app.get('/', (req, res) => {
   res.json({
