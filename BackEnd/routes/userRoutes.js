@@ -4,7 +4,9 @@ const {
   getUserById,
   updateUser,
   deleteUser,
-  getDoctors
+  getDoctors,
+  addDoctor,
+  getAppointmentByUser
 } = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware');
 const router = express.Router();
@@ -13,6 +15,8 @@ const router = express.Router();
 router.use(authenticate);
 router.get('/', authorize('admin'), getAllUsers);
 router.get('/doctors', getDoctors);
+router.post('/doctor', authorize('admin'), addDoctor); // Route for admin to add new doctors
+router.get('/appointments', authorize('doctor', 'patient'), getAppointmentByUser); // New route to fetch appointments
 router.get('/:id', getUserById);
 router.put('/:id', (req, res, next) => {
   if (req.user.id === req.params.id || req.user.role === 'admin') {
