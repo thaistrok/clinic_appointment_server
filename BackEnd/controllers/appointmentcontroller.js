@@ -1,5 +1,6 @@
 const Appointment = require('../models/appointment.js');
 const User = require('../models/user.js');
+const { validateAppointmentId, checkAppointmentAuthorization } = require('../middleware');
 
 // Create Appointment
 const createAppointment = async (req, res) => {
@@ -87,20 +88,10 @@ const getMyAppointments = async (req, res) => {
 // Get Appointment by ID
 const getAppointmentById = async (req, res) => {
   try {
+    // Use the appointment attached by the middleware
     const appointment = await Appointment.findById(req.params.id)
       .populate('patient', 'name email phone')
       .populate('doctor', 'name email specialty experience');
-
-    if (!appointment) {
-      return res.status(404).json({ message: 'Appointment not found' });
-    }
-
-    // Check if user is authorized to view this appointment
-    if (req.user.role !== 'admin' && 
-        appointment.patient.toString() !== req.user.id && 
-        appointment.doctor.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
 
     res.json(appointment);
   } catch (error) {
@@ -111,25 +102,6 @@ const getAppointmentById = async (req, res) => {
 // Update Appointment
 const updateAppointment = async (req, res) => {
   try {
-    // Check if ID is provided and valid
-    if (!req.params.id || req.params.id === 'undefined') {
-      return res.status(400).json({ message: 'Appointment ID is required' });
-    }
-
-    // First find the appointment to check permissions
-    const appointment = await Appointment.findById(req.params.id);
-    
-    if (!appointment) {
-      return res.status(404).json({ message: 'Appointment not found' });
-    }
-
-    // Check if user is authorized to update this appointment
-    if (req.user.role !== 'admin' && 
-        appointment.patient.toString() !== req.user.id && 
-        appointment.doctor.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
     // Update the appointment
     const updatedAppointment = await Appointment.findByIdAndUpdate(
       req.params.id,
@@ -147,25 +119,6 @@ const updateAppointment = async (req, res) => {
 // Delete Appointment
 const deleteAppointment = async (req, res) => {
   try {
-    // Check if ID is provided and valid
-    if (!req.params.id || req.params.id === 'undefined') {
-      return res.status(400).json({ message: 'Appointment ID is required' });
-    }
-
-    // First find the appointment to check permissions
-    const appointment = await Appointment.findById(req.params.id);
-    
-    if (!appointment) {
-      return res.status(404).json({ message: 'Appointment not found' });
-    }
-
-    // Check if user is authorized to delete this appointment
-    if (req.user.role !== 'admin' && 
-        appointment.patient.toString() !== req.user.id && 
-        appointment.doctor.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
     // Delete the appointment
     await Appointment.findByIdAndDelete(req.params.id);
 

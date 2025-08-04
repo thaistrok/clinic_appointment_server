@@ -23,11 +23,11 @@ const verifyToken = (req, res, next) => {
     const {token} = res.locals;
 
     try {
-        let payload = jwt.verify(token, APP_SECRET)
+        let payload = jwt.verify(token, process.env.JWT_SECRET);
 
         if (payload) {
-            res.locals.payload = payload
-            return next()
+            res.locals.payload = payload;
+            return next();
         }
         res.status(401).send({ status: 'Error', message: 'Unauthorized'});
     } catch (error) {
@@ -74,9 +74,19 @@ const authorize = (...roles) => {
   };
 };
 
+// Import appointment middleware functions
+const { 
+  validateAppointmentId, 
+  checkAppointmentAuthorization, 
+  validateAndAuthorizeAppointment 
+} = require('./appointmentMiddleware');
+
 module.exports = {
   stripToken,
   verifyToken,
   authenticate,
-  authorize
+  authorize,
+  validateAppointmentId,
+  checkAppointmentAuthorization,
+  validateAndAuthorizeAppointment
 };
