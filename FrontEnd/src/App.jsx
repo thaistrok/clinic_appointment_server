@@ -1,30 +1,98 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Navigation from './components/Navigation'
-import HomePage from './pages/HomePage'
-import AppointmentPage from './pages/AppointmentPage'
-import LoginPage from './pages/LoginPage'
-import ProfilePage from './pages/ProfilePage'
-import RegistrationPage from './pages/RegistrationPage'
-import './index.css'; 
-import './App.css'; 
+import { Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Appointments from './pages/Appointments';
+import NewAppointment from './pages/NewAppointment';
+import EditAppointment from './pages/EditAppointment';
+import Prescriptions from './pages/Prescriptions';
+import CreatePrescription from './pages/CreatePrescription';
+import Profile from './pages/Profile';
+import PasswordUpdate from './pages/PasswordUpdate';
+import ProtectedRoute from './components/ProtectedRoute';
+import Nav from './components/Nav';
+import Header from './components/Header';
+import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Navigation />
+    <>
+      <Header />
+      <Nav />
+      <main className="main-content">
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/appointments" element={<AppointmentPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/doctors" element={<div>Doctors Page</div>} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/appointments" 
+            element={
+              <ProtectedRoute>
+                <Appointments />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/appointments/new" 
+            element={
+              <ProtectedRoute>
+                <NewAppointment />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/appointments/:id/edit" 
+            element={
+              <ProtectedRoute>
+                <EditAppointment />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/prescriptions" 
+            element={
+              <ProtectedRoute>
+                <Prescriptions />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/prescriptions/create" 
+            element={
+              <ProtectedRoute>
+                <CreatePrescription />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/password-update" 
+            element={
+              <ProtectedRoute>
+                <PasswordUpdate />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
-      </div>
-    </Router>
+      </main>
+    </>
   );
 }
 
-export default App;
+export default App

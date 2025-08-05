@@ -1,0 +1,137 @@
+.prescription-list-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.prescription-list-header {
+  margin-bottom: 30px;
+}
+
+.prescription-list-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+}
+
+.no-prescriptions {
+  text-align: center;
+  padding: 40px;
+}
+
+.no-prescriptions p {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.prescriptions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.prescription-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.prescription-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.prescription-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.prescription-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.prescription-date {
+  color: #666;
+  font-size: 14px;
+}
+
+.prescription-details {
+  margin-bottom: 15px;
+}
+
+.diagnosis-section h4,
+.medications-section h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.diagnosis-section p {
+  margin: 0 0 15px 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.medications-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 15px 0;
+}
+
+.medication-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.medication-item:last-child {
+  border-bottom: none;
+}
+
+.medication-name {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.medication-details {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.prescription-footer {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.prescription-footer p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .prescriptions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .medication-details {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

@@ -1,0 +1,26 @@
+.register-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.register-page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.register-page-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-top: 30px;
+}
+
+.register-page-header h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.register-page-header p {
+  color: #666;
+  font-size: 18px;
+}

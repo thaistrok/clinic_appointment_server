@@ -1,4 +1,4 @@
-.login-form-container {
+.registration-form-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -6,7 +6,7 @@
   padding: 20px;
 }
 
-.login-form {
+.registration-form {
   background-color: #fff;
   padding: 30px;
   border-radius: 8px;
@@ -15,7 +15,7 @@
   max-width: 400px;
 }
 
-.login-form h2 {
+.registration-form h2 {
   text-align: center;
   margin-bottom: 24px;
   color: #333;
@@ -57,10 +57,10 @@
   font-size: 14px;
 }
 
-.login-button {
+.register-button {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  background-color: #28a745;
   color: white;
   border: none;
   border-radius: 4px;
@@ -69,11 +69,11 @@
   transition: background-color 0.3s;
 }
 
-.login-button:hover:not(:disabled) {
-  background-color: #0056b3;
+.register-button:hover:not(:disabled) {
+  background-color: #218838;
 }
 
-.login-button:disabled {
+.register-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }

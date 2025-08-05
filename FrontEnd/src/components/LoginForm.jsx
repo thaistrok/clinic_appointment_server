@@ -1,40 +1,31 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { login } from '../services/auth.js';
+import PasswordInput from './PasswordInput.jsx';
 import '../styles/LoginForm.css';
 
 const LoginForm = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    // In a real app, this would be an API call to your backend
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, we'll just navigate to the appointments page
-      navigate('/appointments');
-    } catch (err) {
-      setError(err.message || 'Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
+    const result = await login({ email, password });
+    
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.error);
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -45,35 +36,34 @@ const LoginForm = () => {
         {error && <div className="error-message">{error}</div>}
         
         <div className="form-group">
-          <label htmlFor="email">Email Address</label>
+          <label htmlFor="email">Email:</label>
           <input
             type="email"
             id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
+            placeholder="Enter your email"
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
+          <label htmlFor="password">Password:</label>
+          <PasswordInput
             id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
+            placeholder="Enter your password"
           />
         </div>
         
-        <button type="submit" className="btn btn-primary" disabled={loading}>
+        <button type="submit" className="login-button" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
         
         <div className="form-footer">
-          <p>Don't have an account? <a href="/register" onClick={(e) => {e.preventDefault(); navigate('/register');}}>Register</a></p>
+          <p>Don't have an account? <Link to="/register">Register</Link></p>
         </div>
       </form>
     </div>

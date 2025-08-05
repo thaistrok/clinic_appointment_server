@@ -1,22 +1,36 @@
-
-body {
-  font-family: Arial, sans-serif;
+/* Reset some basic styles */
+* {
   margin: 0;
   padding: 0;
-  background-color: #f0f4f8; 
+  box-sizing: border-box;
 }
 
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Add a basic flexbox layout for containers */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 20px;
 }
 
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Component-level styles */
+.feature-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
   text-align: center;
+  margin: 20px;
+}
+
+.feature-icon {
+  font-size: 2em;
+  margin-bottom: 10px;
 }
 
 .logo {
