@@ -23,6 +23,7 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
     // Fetch doctors list
     const fetchDoctors = async () => {
       try {
+        const response = await getDoctors();
         setDoctors(response);
         if (response.length > 0 && !appointment) {
           setDoctor(response[0].id.toString());

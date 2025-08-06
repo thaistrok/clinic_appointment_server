@@ -88,12 +88,15 @@ const getMyAppointments = async (req, res) => {
 // Get Appointment by ID
 const getAppointmentById = async (req, res) => {
   try {
-    // Use the appointment attached by the middleware
-    const appointment = await Appointment.findById(req.params.id)
-      .populate('patient', 'name email phone')
-      .populate('doctor', 'name email specialty experience');
+    validateAppointmentId(req, res, async () => {
+      // Use the appointment attached by the middleware
+      const appointment = await Appointment.findById(req.params.id)
+        .populate('patient', 'name email phone')
+        .populate('doctor', 'name email specialty experience');
 
-    res.json(appointment);
+      res.json(appointment);
+    });
+    return;
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -102,15 +105,20 @@ const getAppointmentById = async (req, res) => {
 // Update Appointment
 const updateAppointment = async (req, res) => {
   try {
-    // Update the appointment
-    const updatedAppointment = await Appointment.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    ).populate('patient', 'name email phone')
-     .populate('doctor', 'name email specialty experience');
+    validateAppointmentId(req, res, async () => {
+      checkAppointmentAuthorization(req, res, async () => {
+        // Update the appointment
+        const updatedAppointment = await Appointment.findByIdAndUpdate(
+          req.params.id,
+          req.body,
+          { new: true, runValidators: true }
+        ).populate('patient', 'name email phone')
+         .populate('doctor', 'name email specialty experience');
 
-    res.json(updatedAppointment);
+        res.json(updatedAppointment);
+      });
+    });
+    return;
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -119,10 +127,15 @@ const updateAppointment = async (req, res) => {
 // Delete Appointment
 const deleteAppointment = async (req, res) => {
   try {
-    // Delete the appointment
-    await Appointment.findByIdAndDelete(req.params.id);
+    validateAppointmentId(req, res, async () => {
+      checkAppointmentAuthorization(req, res, async () => {
+        // Delete the appointment
+        await Appointment.findByIdAndDelete(req.params.id);
 
-    res.json({ message: 'Appointment removed' });
+        res.json({ message: 'Appointment removed' });
+      });
+    });
+    return;
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

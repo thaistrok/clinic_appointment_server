@@ -46,12 +46,18 @@ export const authAPI = {
     localStorage.removeItem('token');
   },
   updatePassword: (passwordData) => api.put('/auth/password', passwordData),
+  getProfile: () => api.get('/auth/profile'),
 };
 
 // User API calls
 export const userAPI = {
-  getProfile: () => api.get('/users/profile'),
-  updateProfile: (userData) => api.put('/users/profile', userData),
+  getAllUsers: () => api.get('/users'), // Admin only
+  getDoctors: () => api.get('/users/doctors'),
+  addDoctor: (doctorData) => api.post('/users/doctor', doctorData), // Admin only
+  getMyAppointments: () => api.get('/users/appointments'), // Doctor/Patient only
+  getProfile: (id) => api.get(`/users/${id}`),
+  updateProfile: (id, userData) => api.put(`/users/${id}`, userData),
+  deleteUser: (id) => api.delete(`/users/${id}`), // Admin only
 };
 
 // Appointment API calls

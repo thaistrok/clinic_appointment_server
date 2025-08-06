@@ -20,6 +20,19 @@ const UserProfile = () => {
       setName(currentUser.name || '');
       setEmail(currentUser.email || '');
       setPhone(currentUser.phone || '');
+
+      const fetchProfile = async () => {
+        try {
+          const response = await userAPI.getProfile(currentUser.id);
+          setName(response.data.name || '');
+          setEmail(response.data.email || '');
+          setPhone(response.data.phone || '');
+        } catch (err) {
+          setError(err.response?.data?.message || 'Failed to fetch profile');
+        }
+      };
+
+      fetchProfile();
     }
   }, []);
 
@@ -30,7 +43,7 @@ const UserProfile = () => {
     setSuccess(false);
 
     try {
-      const response = await userAPI.updateProfile({ name, email, phone });
+      const response = await userAPI.updateProfile(user.id, { name, email, phone });
       // Update local storage with new user data
       const updatedUser = { ...user, ...response.data };
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -53,7 +66,7 @@ const UserProfile = () => {
       <div className="user-profile-header">
         <h2>User Profile</h2>
         {!editing && (
-          <button 
+          <button
             className="edit-button"
             onClick={() => setEditing(true)}
           >
@@ -72,22 +85,22 @@ const UserProfile = () => {
               <label>Name:</label>
               <span>{user.name}</span>
             </div>
-            
+
             <div className="profile-field">
               <label>Email:</label>
               <span>{user.email}</span>
             </div>
-            
+
             <div className="profile-field">
               <label>Phone:</label>
               <span>{user.phone || 'Not provided'}</span>
             </div>
-            
+
             <div className="profile-field">
               <label>Role:</label>
               <span>{user.role}</span>
             </div>
-            
+
             <div className="profile-field">
               <label>Member since:</label>
               <span>{new Date(user.createdAt).toLocaleDateString()}</span>
@@ -105,7 +118,7 @@ const UserProfile = () => {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="email">Email:</label>
               <input
@@ -116,7 +129,7 @@ const UserProfile = () => {
                 required
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="phone">Phone:</label>
               <input
@@ -127,10 +140,10 @@ const UserProfile = () => {
                 placeholder="Enter your phone number"
               />
             </div>
-            
+
             <div className="form-actions">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="cancel-button"
                 onClick={() => {
                   // Reset form values to original
@@ -144,8 +157,8 @@ const UserProfile = () => {
               >
                 Cancel
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="save-button"
                 disabled={loading}
               >

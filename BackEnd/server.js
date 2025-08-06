@@ -19,6 +19,7 @@ const connectDB = require('./db');
 const AuthRouter = require('./routes/AuthRouter');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const userRoutes = require('./routes/userRoutes');
+const prescriptionRoutes = require('./routes/prescriptionRoutes');
 
 // Connect to database
 connectDB();
@@ -28,7 +29,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173','http://127.0.0.1:5173'],
+  origin: ['http://localhost:5173','http://127.0.0.1:5173','http://localhost:5174'],
   credentials: true
 }));
 app.use(express.json());
@@ -39,6 +40,7 @@ app.use(morgan('dev'))
 app.use('/api/auth', AuthRouter);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/prescriptions', prescriptionRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -81,4 +83,3 @@ app.use('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-

@@ -1,139 +1,165 @@
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { validationResult } = require('express-validator');
-const bcrypt = require('bcrypt');
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
-};
 
-// Register User
-const registerUser = async (req, res) => {
+// @desc   Register a new user
+// @route  POST /api/auth/register
+// @access Public
+exports.registerUser = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { name, email, password } = req.body;
+
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const { name, email, password, role } = req.body;
+    let user = await User.findOne({ email });
 
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    if (user) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Validate required fields
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Please provide all required fields' });
-    }
-
-    // Create user - let the model handle password hashing
-    const user = new User({
+    user = new User({
       name,
       email,
-      password,
-      role: role || 'patient'
+      password
     });
-    
+
+    console.log('Saving user with password:', password);
     await user.save();
+    console.log('User saved with hashed password:', user.password);
 
-    // Generate token
-    const token = generateToken(user._id);
+    const payload = {
+      user: {
+        id: user.id
+      }
+    };
 
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token
+    jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: '5d'
+    }, (err, token) => {
+      if (err) {
+        console.error('JWT signing error:', err);
+        throw err;
+      }
+      res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
     });
-  } catch (error) {
-    console.error('Register Error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
+  } catch (err) {
+    console.error('Registration error:', err);
+    console.error('Error stack:', err.stack);
+    res.status(500).send('Server error');
   }
 };
 
-// Login User
-const loginUser = async (req, res) => {
+// @desc   Login user
+// @route  POST /api/auth/login
+// @access Public
+exports.loginUser = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
-     console.log('Login attempt:', { email, password: password ? '***' : 'MISSING' });
+    // Explicitly select the password field
+    let user = await User.findOne({ email }).select('+password');
 
-    // Validate input
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Please provide email and password' });
-    }
-
-    // Check for user - explicitly select password field
-    const user = await User.findOne({ email }).select('+password');
-    console.log('Database user lookup result:', user ? 'Found' : 'Not found');
-    
     if (!user) {
-      console.log('User not found in database for email:', email);
-      return res.status(401).json({ message: 'Invalid credentials - User not found' });
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    console.log('User found:', {
-      id: user._id,
-      email: user.email,
-      hasPassword: !!user.password,
-      passwordLength: user.password ? user.password.length : 0
-    });
-
-    // Check if password exists
-    if (!user.password) {
-      console.error('User password is undefined for user:', user._id);
-      return res.status(500).json({ message: 'User account corrupted' });
+    if (!password || !user.password) {
+      console.error('Missing password or user.password');
+      console.error('User object:', JSON.stringify(user, null, 2));
+      return res.status(500).json({ message: 'Internal server error' });
     }
 
-    // Check password - handle both single and double hashed passwords for backward compatibility
-    let isMatch = await bcrypt.compare(password, user.password);
-    console.log('Comparing passwords...');
-    console.log('Password match (single hash):', isMatch);
-    
-    // If single hash doesn't match, try double hash for backward compatibility
-    if (!isMatch) {
-      console.log('Trying double hash comparison for backward compatibility...');
-      const singleHashedPassword = await bcrypt.hash(password, 12);
-      isMatch = await bcrypt.compare(singleHashedPassword, user.password);
-      console.log('Password match (double hash):', isMatch);
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials - Wrong password' });
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Generate token
-    const token = generateToken(user._id);
+    const payload = {
+      user: {
+        id: user.id
+      }
+    };
 
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      user:user,
-      token
+    jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: '5d'
+    }, (err, token) => {
+      if (err) {
+        console.error('JWT signing error:', err);
+        throw err;
+      }
+      res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
     });
-  } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    console.error('Login error:', err);
+    console.error('Error stack:', err.stack);
+    res.status(500).send('Server error');
   }
 };
 
-// Get User Profile
-const getUserProfile = async (req, res) => {
+// @desc   Get user profile
+// @route  GET /api/auth/profile
+// @access Private
+exports.getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 };
 
-module.exports = {
-  registerUser,
-  loginUser,
-  getUserProfile
+// @desc   Update password
+// @route  PUT /api/auth/password
+// @access Private
+exports.updatePassword = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { oldPassword, newPassword } = req.body;
+  console.log('Update password request for user:', req.user.id);
+  console.log('Request body:', req.body);
+
+  try {
+    const user = await User.findById(req.user.id);
+    console.log('Found user:', user ? 'Yes' : 'No');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    console.log('Old password match:', isMatch);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid old password' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    console.log('New password hashed');
+
+    user.password = hashedPassword;
+    await user.save();
+    console.log('User saved with new password');
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Update password error:', err);
+    console.error('Error stack:', err.stack);
+    res.status(500).send('Server error');
+  }
 };

@@ -1,4 +1,5 @@
 const User = require('../models/user.js');
+const Appointment = require('../models/appointment.js');
 
 
 const getAllUsers = async (req, res) => {
