@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDoctors, getAvailableSlots } from '../services/mockData';
-import { appointmentAPI } from '../services/api.js';
+import { getAvailableSlots } from '../services/mockData';
+import { appointmentAPI, userAPI } from '../services/api.js';
 import { useApiMutation } from '../hooks/useApi.js';
 import { getCurrentUser } from '../services/auth.js';
 import '../styles/AppointmentForm.css';
@@ -13,23 +13,34 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
   const [reason, setReason] = useState('');
   const [doctors, setDoctors] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const user = getCurrentUser();
   
-  const { execute, loading, error: apiError, success } = useApiMutation();
+  const { execute, loading: apiLoading, error: apiError, success } = useApiMutation();
 
   useEffect(() => {
     // Fetch doctors list
     const fetchDoctors = async () => {
       try {
-        const response = await getDoctors();
-        setDoctors(response);
-        if (response.length > 0 && !appointment) {
-          setDoctor(response[0].id.toString());
+        const response = await userAPI.getDoctors();
+        setDoctors(response.data);
+        if (response.data.length > 0 && !appointment) {
+          setDoctor(response.data[0]._id);
         }
       } catch (err) {
         console.error('Failed to fetch doctors', err);
+        // Fallback to mock doctors if API fails
+        const mockDoctors = [
+          { _id: '688f89196d5e34b989bb98af', name: 'Dr. Yousif', specialty: 'Node.js_Express.js_React.js_Pytyhon' },
+          { _id: '688f891a6d5e34b989bb98b2', name: 'Dr. Michael', specialty: 'Express.js_React.js' },
+          { _id: '688f891a6d5e34b989bb98b5', name: 'Dr. Omar', specialty: 'Python' }
+        ];
+        setDoctors(mockDoctors);
+        if (mockDoctors.length > 0 && !appointment) {
+          setDoctor(mockDoctors[0]._id);
+        }
       }
     };
 
@@ -39,7 +50,7 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
     if (appointment) {
       setDate(appointment.date);
       setTime(appointment.time);
-      setDoctor(appointment.doctorId.toString());
+      setDoctor(appointment.doctorId || appointment.doctor);
       setReason(appointment.reason);
     }
   }, [appointment]);
@@ -49,6 +60,7 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
     const fetchAvailableSlots = async () => {
       if (date && doctor) {
         try {
+          const response = await getAvailableSlots(doctor, date);
           setAvailableSlots(response);
           // Reset time selection when slots change
           setTime('');
@@ -82,18 +94,18 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
       const appointmentData = {
         date,
         time,
-        doctorId: doctor,
+        doctor,
         reason
       };
 
       // Add patient information if available
       if (user && user.id) {
-        appointmentData.patientId = user.id;
+        appointmentData.patient = user.id;
         appointmentData.patientName = user.name;
       }
 
       // Add doctor name
-      const selectedDoctor = doctors.find(doc => doc.id.toString() === doctor);
+      const selectedDoctor = doctors.find(doc => doc._id === doctor);
       if (selectedDoctor) {
         appointmentData.doctorName = selectedDoctor.name;
       }
@@ -150,7 +162,7 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
             required
           >
             {doctors.map((doc) => (
-              <option key={doc.id} value={doc.id}>
+              <option key={doc._id} value={doc._id}>
                 {doc.name} - {doc.specialty}
               </option>
             ))}
