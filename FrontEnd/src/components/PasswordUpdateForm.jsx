@@ -34,8 +34,9 @@ const PasswordUpdateForm = () => {
     setError('');
     setSuccess(false);
     
+    // Send the correct field names that match the backend
     const result = await updatePassword({
-      currentPassword,
+      oldPassword: currentPassword,
       newPassword
     });
 

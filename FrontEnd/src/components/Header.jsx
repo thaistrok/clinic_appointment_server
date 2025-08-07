@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import Nav from './Nav';
 import { isAuthenticated, logout } from '../services/auth.js';
 import '../styles/Header.css';
-
+import { getCurrentUser } from '../services/auth.js';
 const Header = () => {
 const navigate = useNavigate();
+const user = getCurrentUser()
+
 const handleLogout = () => {
     logout();
     navigate('/login');
@@ -23,7 +25,7 @@ const handleLogout = () => {
         <div className="user-menu">
           {isAuthenticated() ? (
             <div className="user-info">
-              <span className="user-name">Hello, User</span> 
+              <span className="user-name">Hello, {user?.name}!</span> 
               <div className="user-dropdown">
                 <button className="dropdown-toggle">
                   Account

@@ -19,7 +19,7 @@ function App() {
   return (
     <>
       <Header />
-      <Nav />
+   
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
