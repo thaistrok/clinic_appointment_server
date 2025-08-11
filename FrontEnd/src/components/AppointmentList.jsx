@@ -40,7 +40,7 @@ const AppointmentList = () => {
 
   useEffect(() => {
     fetchAppointments();
-  }, [fetchAppointments]);
+  }, []);
 
   const handleCancelAppointment = async (id) => {
     // Validate the ID before proceeding
