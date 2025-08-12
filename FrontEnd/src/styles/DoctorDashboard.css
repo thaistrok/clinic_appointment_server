@@ -19,6 +19,105 @@
   font-size: 1.1em;
 }
 
+.error-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.retry-button {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.retry-button:hover {
+  background-color: #e0a800;
+}
+
+.prescription-section {
+  border-left: 1px solid #eee;
+  padding-left: 30px;
+}
+
+@media (max-width: 768px) {
+  .prescription-section {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid #eee;
+    padding-top: 30px;
+  }
+}
+
+
+
+.create-prescription-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.create-prescription-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.create-prescription-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  position: relative;
+  color: #666;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #ddd;
+  z-index: 1;
+}
+
+.divider span {
+  background-color: white;
+  position: relative;
+  z-index: 2;
+  padding: 0 10px;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
 .dashboard-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -79,26 +178,20 @@
 }
 
 .status {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.85em;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
   font-weight: bold;
-  text-transform: capitalize;
-}
-
-.status.scheduled {
-  background-color: #fff3cd;
-  color: #856404;
 }
 
 .status.confirmed {
-  background-color: #d1ecf1;
-  color: #0c5460;
-}
-
-.status.completed {
   background-color: #d4edda;
   color: #155724;
+}
+
+.status.pending {
+  background-color: #fff3cd;
+  color: #856404;
 }
 
 .status.cancelled {
@@ -187,6 +280,32 @@ textarea.form-control {
   background-color: #0069d9;
 }
 
+.add-medication-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.submit-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.submit-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
 .btn-secondary {
   background-color: #6c757d;
   color: white;
@@ -204,6 +323,20 @@ textarea.form-control {
 
 .btn-danger:hover {
   background-color: #c82333;
+}
+
+.remove-medication-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-medication-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
 }
 
 .btn-danger:disabled {

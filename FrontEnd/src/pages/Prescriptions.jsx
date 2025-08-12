@@ -56,7 +56,7 @@ const Prescriptions = () => {
         {/* Medication Dropdown Section */}
         <div className="medication-search-section">
           <h2>Search Medications</h2>
-          <p>Search for information about specific medications</p>
+          <p>Search our comprehensive database for detailed medication information, including usage instructions, side effects, and contraindications.</p>
           
           {loading ? (
             <p>Loading medications...</p>

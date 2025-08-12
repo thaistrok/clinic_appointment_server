@@ -83,6 +83,14 @@ function App() {
             } 
           />
           <Route 
+            path="/prescriptions/create/:appointmentId" 
+            element={
+              <ProtectedRoute>
+                <CreatePrescription />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/profile" 
             element={
               <ProtectedRoute>

@@ -4,8 +4,10 @@ import { appointmentAPI, prescriptionAPI } from '../services/api.js';
 import MedicationDropdown from './MedicationDropdown.jsx';
 import '../styles/PrescriptionForm.css';
 
-const PrescriptionForm = () => {
-  const { appointmentId } = useParams();
+const PrescriptionForm = ({ appointmentId: propAppointmentId }) => {
+  const { appointmentId: paramAppointmentId } = useParams();
+  const actualAppointmentId = propAppointmentId || paramAppointmentId;
+  
   const [appointment, setAppointment] = useState(null);
   const [diagnosis, setDiagnosis] = useState('');
   const [medications, setMedications] = useState([{ name: '', dosage: '', frequency: '' }]);
@@ -17,7 +19,7 @@ const PrescriptionForm = () => {
   useEffect(() => {
     const fetchAppointment = async () => {
       try {
-        const response = await appointmentAPI.getAppointment(appointmentId);
+        const response = await appointmentAPI.getAppointment(actualAppointmentId);
         setAppointment(response.data);
       } catch (err) {
         setError('Failed to fetch appointment details');
@@ -25,10 +27,10 @@ const PrescriptionForm = () => {
       }
     };
 
-    if (appointmentId) {
+    if (actualAppointmentId) {
       fetchAppointment();
     }
-  }, [appointmentId]);
+  }, [actualAppointmentId]);
 
   const handleAddMedication = () => {
     setMedications([...medications, { name: '', dosage: '', frequency: '' }]);
@@ -64,18 +66,37 @@ const PrescriptionForm = () => {
     setError('');
     setSuccess(false);
 
-    // Filter out empty medications
-    const filteredMedications = medications.filter(
-      med => med.name.trim() || med.dosage.trim() || med.frequency.trim()
+    // Validate form
+    if (!actualAppointmentId) {
+      setError('No appointment selected');
+      setLoading(false);
+      return;
+    }
+
+    if (!diagnosis.trim()) {
+      setError('Please enter a diagnosis');
+      setLoading(false);
+      return;
+    }
+
+    // Check if all medications have names
+    const hasIncompleteMedication = medications.some(
+      med => !med.name.trim()
     );
 
-    const prescriptionData = {
-      appointment: appointmentId,
-      diagnosis,
-      medications: filteredMedications
-    };
+    if (hasIncompleteMedication) {
+      setError('Please select a medication for each entry');
+      setLoading(false);
+      return;
+    }
 
     try {
+      const prescriptionData = {
+        appointment: actualAppointmentId,
+        diagnosis,
+        medications
+      };
+
       await prescriptionAPI.createPrescription(prescriptionData);
       setSuccess(true);
       // Redirect to prescriptions page after 2 seconds
@@ -89,7 +110,7 @@ const PrescriptionForm = () => {
     }
   };
 
-  if (!appointment && appointmentId) {
+  if (!appointment && actualAppointmentId) {
     return <div className="loading">Loading appointment details...</div>;
   }
 
@@ -99,18 +120,14 @@ const PrescriptionForm = () => {
         <h2>Create Prescription</h2>
         
         {appointment && (
-          <div className="appointment-info">
+          <div className="appointment-details">
             <h3>Appointment Details</h3>
-            <p><strong>Patient:</strong> {appointment.patientName}</p>
+            <p><strong>Patient:</strong> {appointment.patient?.name || 'Unknown Patient'}</p>
             <p><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</p>
-            <p><strong>Time:</strong> {appointment.time}</p>
             <p><strong>Reason:</strong> {appointment.reason}</p>
           </div>
         )}
-        
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">Prescription created successfully!</div>}
-        
+
         <div className="form-group">
           <label htmlFor="diagnosis">Diagnosis:</label>
           <textarea
@@ -118,66 +135,72 @@ const PrescriptionForm = () => {
             value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
             placeholder="Enter diagnosis"
+            className="form-control"
+            rows="4"
             required
           />
         </div>
-        
+
         <div className="medications-section">
-          <h3>Medications</h3>
+          <label>Medications:</label>
           {medications.map((med, index) => (
             <div key={index} className="medication-row">
-              <div className="medication-select">
-                <label>Medication:</label>
-                <MedicationDropdown
-                  onSelect={(medication) => handleMedicationSelect(index, medication)}
-                  placeholder="Select a medication..."
-                />
-              </div>
-              <div className="medication-details">
-                <div className="form-group">
-                  <label>Name:</label>
-                  <input
-                    type="text"
-                    value={med.name}
-                    onChange={(e) => handleMedicationChange(index, 'name', e.target.value)}
-                    placeholder="Medication name"
+              <div className="medication-fields">
+                <div className="medication-dropdown">
+                  <MedicationDropdown
+                    onSelect={(medication) => handleMedicationSelect(index, medication)}
+                    placeholder="Select a medication..."
+                    className="form-control"
                   />
                 </div>
-                <div className="form-group">
-                  <label>Dosage:</label>
+                <div className="medication-details">
                   <input
                     type="text"
+                    placeholder="Dosage (e.g., 10mg)"
                     value={med.dosage}
                     onChange={(e) => handleMedicationChange(index, 'dosage', e.target.value)}
-                    placeholder="Dosage"
+                    className="form-control dosage-input"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Frequency:</label>
                   <input
                     type="text"
+                    placeholder="Frequency (e.g., Twice daily)"
                     value={med.frequency}
                     onChange={(e) => handleMedicationChange(index, 'frequency', e.target.value)}
-                    placeholder="Frequency"
+                    className="form-control frequency-input"
                   />
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => handleRemoveMedication(index)}
-                className="remove-btn"
+                className="remove-medication-button"
                 disabled={medications.length <= 1}
               >
                 Remove
               </button>
             </div>
           ))}
-          <button type="button" onClick={handleAddMedication} className="add-medication-btn">
+          <button
+            type="button"
+            onClick={handleAddMedication}
+            className="add-medication-button"
+          >
             Add Medication
           </button>
         </div>
-        
-        <button type="submit" disabled={loading} className="submit-btn">
+
+        {error && (
+          <div className="error-message">{error}</div>
+        )}
+        {success && (
+          <div className="success-message">Prescription created successfully!</div>
+        )}
+
+        <button 
+          type="submit" 
+          className="submit-button" 
+          disabled={loading || !actualAppointmentId}
+        >
           {loading ? 'Creating...' : 'Create Prescription'}
         </button>
       </form>

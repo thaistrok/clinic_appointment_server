@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentAPI, prescriptionAPI } from '../services/api.js';
 import MedicationDropdown from '../components/MedicationDropdown.jsx';
-import { getCurrentUser } from '../services/auth.js';
+import { getCurrentUser, isAuthenticated } from '../services/auth.js';
 import '../styles/DoctorDashboard.css';
 
 const DoctorDashboard = () => {
@@ -15,20 +15,45 @@ const DoctorDashboard = () => {
   const [prescriptionSuccess, setPrescriptionSuccess] = useState('');
   const [prescriptionError, setPrescriptionError] = useState('');
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  
+  // Check if user is authenticated
+  const authenticated = isAuthenticated();
+  const user = authenticated ? getCurrentUser() : null;
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authenticated) {
+      navigate('/login');
+      return;
+    }
+    
+    if (user && user.role !== 'doctor') {
+      navigate('/dashboard');
+      return;
+    }
+  }, [authenticated, user, navigate]);
 
   useEffect(() => {
+    // Only fetch appointments if user is authenticated and is a doctor
+    if (!authenticated || !user || user.role !== 'doctor') {
+      return;
+    }
+    
     const fetchAppointments = async () => {
       try {
         setLoading(true);
+        setError('');
         const response = await appointmentAPI.getAppointments();
-        // Filter appointments for this doctor
-        const doctorAppointments = response.data.filter(
-          appointment => appointment.doctor._id === user._id || appointment.doctor === user._id
-        );
-        setAppointments(doctorAppointments);
+        // Since the backend already filters appointments by doctor,
+        // we can use the response data directly
+        setAppointments(response.data);
       } catch (err) {
-        setError('Failed to fetch appointments');
+        // Handle timeout errors specifically
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+          setError('Request timeout. The server is taking too long to respond. Please try again.');
+        } else {
+          setError('Failed to fetch appointments: ' + (err.response?.data?.message || err.message));
+        }
         console.error('Error fetching appointments:', err);
       } finally {
         setLoading(false);
@@ -36,7 +61,7 @@ const DoctorDashboard = () => {
     };
 
     fetchAppointments();
-  }, [user._id]);
+  }, []);
 
   const handleCreatePrescription = async (e) => {
     e.preventDefault();
@@ -51,38 +76,38 @@ const DoctorDashboard = () => {
       return;
     }
     
-    // Filter out empty medications
-    const validMedications = medications.filter(
-      med => med.name.trim() || med.dosage.trim() || med.frequency.trim()
+    // Check if all medications have names
+    const hasIncompleteMedication = medications.some(
+      med => !med.name.trim()
     );
-    
-    if (validMedications.length === 0) {
-      setPrescriptionError('Please add at least one medication');
+
+    if (hasIncompleteMedication) {
+      setPrescriptionError('Please select a medication for each entry');
       return;
     }
-
+    
     try {
-      setPrescriptionError('');
       const prescriptionData = {
-        appointment: selectedAppointment._id || selectedAppointment,
-        doctor: user._id,
-        patient: selectedAppointment.patient._id || selectedAppointment.patient,
+        appointment: selectedAppointment._id,
         diagnosis,
-        medications: validMedications
+        medications
       };
 
       await prescriptionAPI.createPrescription(prescriptionData);
       setPrescriptionSuccess('Prescription created successfully!');
+      setPrescriptionError('');
+      
+      // Reset form
       setDiagnosis('');
       setMedications([{ name: '', dosage: '', frequency: '' }]);
       
-      // Reset success message after 3 seconds
+      // Redirect to prescriptions page after 2 seconds
       setTimeout(() => {
-        setPrescriptionSuccess('');
-      }, 3000);
+        navigate('/prescriptions');
+      }, 2000);
     } catch (err) {
-      setPrescriptionError('Failed to create prescription');
-      console.error('Error creating prescription:', err);
+      setPrescriptionError(err.response?.data?.message || 'Failed to create prescription');
+      setPrescriptionSuccess('');
     }
   };
 
@@ -114,12 +139,30 @@ const DoctorDashboard = () => {
     }
   };
 
-  if (loading) {
-    return <div className="doctor-dashboard">Loading appointments...</div>;
+  const handleCreatePrescriptionClick = () => {
+    if (!selectedAppointment) {
+      setPrescriptionError('Please select an appointment first');
+      return;
+    }
+    
+    // Navigate to the CreatePrescription page with the selected appointment ID
+    navigate(`/prescriptions/create/${selectedAppointment._id}`);
+  };
+
+  const handleRetry = () => {
+    // Clear error and trigger a new fetch
+    setError('');
+    // This will trigger the useEffect to run again
+    setLoading(true);
+  };
+
+  // Don't render anything if not authenticated or not a doctor
+  if (!authenticated || !user || user.role !== 'doctor') {
+    return <div className="doctor-dashboard">Loading...</div>;
   }
 
-  if (error) {
-    return <div className="doctor-dashboard">Error: {error}</div>;
+  if (loading) {
+    return <div className="doctor-dashboard">Loading appointments...</div>;
   }
 
   return (
@@ -166,96 +209,89 @@ const DoctorDashboard = () => {
         <div className="prescription-section">
           <h2>Create Prescription</h2>
           {selectedAppointment ? (
-            <form onSubmit={handleCreatePrescription} className="prescription-form">
-              <div className="form-group">
-                <label>Patient:</label>
-                <input 
-                  type="text" 
-                  value={selectedAppointment.patient?.name || 'Unknown Patient'} 
-                  readOnly 
-                  className="form-control"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Diagnosis:</label>
-                <textarea
-                  value={diagnosis}
-                  onChange={(e) => setDiagnosis(e.target.value)}
-                  placeholder="Enter diagnosis"
-                  className="form-control"
-                  rows="3"
-                  required
-                />
-              </div>
-              
-              <div className="medications-section">
-                <label>Medications:</label>
-                {medications.map((med, index) => (
-                  <div key={index} className="medication-row">
-                    <div className="medication-dropdown">
-                      <MedicationDropdown
-                        onSelect={(medication) => handleMedicationSelect(index, medication)}
-                        placeholder="Select a medication..."
-                        className="form-control"
-                      />
+            <div>
+             
+              <form onSubmit={handleCreatePrescription} className="prescription-form">
+                <div className="form-group">
+                  <label>Patient:</label>
+                  <input 
+                    type="text" 
+                    value={selectedAppointment.patient?.name || 'Unknown Patient'} 
+                    readOnly 
+                    className="form-control"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>Diagnosis:</label>
+                  <textarea
+                    value={diagnosis}
+                    onChange={(e) => setDiagnosis(e.target.value)}
+                    placeholder="Enter diagnosis"
+                    className="form-control"
+                    rows="3"
+                    required
+                  />
+                </div>
+                
+                <div className="medications-section">
+                  <label>Medications:</label>
+                  {medications.map((med, index) => (
+                    <div key={index} className="medication-row">
+                      <div className="medication-dropdown">
+                        <MedicationDropdown
+                          onSelect={(medication) => handleMedicationSelect(index, medication)}
+                          placeholder="Select a medication..."
+                          className="form-control"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Dosage (e.g., 10mg)"
+                          value={med.dosage}
+                          onChange={(e) => handleMedicationChange(index, 'dosage', e.target.value)}
+                          className="form-control dosage-input"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Frequency (e.g., Twice daily)"
+                          value={med.frequency}
+                          onChange={(e) => handleMedicationChange(index, 'frequency', e.target.value)}
+                          className="form-control frequency-input"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMedication(index)}
+                        className="remove-medication-button"
+                        disabled={medications.length <= 1}
+                      >
+                        Remove
+                      </button>
                     </div>
-                    <div className="medication-inputs">
-                      <input
-                        type="text"
-                        placeholder="Name"
-                        value={med.name}
-                        onChange={(e) => handleMedicationChange(index, 'name', e.target.value)}
-                        className="form-control"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Dosage"
-                        value={med.dosage}
-                        onChange={(e) => handleMedicationChange(index, 'dosage', e.target.value)}
-                        className="form-control"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Frequency"
-                        value={med.frequency}
-                        onChange={(e) => handleMedicationChange(index, 'frequency', e.target.value)}
-                        className="form-control"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMedication(index)}
-                      className="btn btn-danger"
-                      disabled={medications.length <= 1}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={handleAddMedication}
-                  className="btn btn-secondary"
-                >
-                  Add Medication
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleAddMedication}
+                    className="add-medication-button"
+                  >
+                    Add Medication
+                  </button>
+                </div>
+                
+                {prescriptionError && (
+                  <div className="error-message">{prescriptionError}</div>
+                )}
+                {prescriptionSuccess && (
+                  <div className="success-message">{prescriptionSuccess}</div>
+                )}
+                
+                <button type="submit" className="submit-button" disabled={loading}>
+                  {loading ? 'Creating...' : 'Create Prescription'}
                 </button>
-              </div>
-              
-              {prescriptionError && (
-                <div className="alert alert-danger">{prescriptionError}</div>
-              )}
-              
-              {prescriptionSuccess && (
-                <div className="alert alert-success">{prescriptionSuccess}</div>
-              )}
-              
-              <button type="submit" className="btn btn-primary">
-                Create Prescription
-              </button>
-            </form>
+              </form>
+            </div>
           ) : (
-            <p>Please select an appointment to create a prescription.</p>
+            <p>Please select an appointment to create a prescription</p>
           )}
         </div>
       </div>

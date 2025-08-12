@@ -14,7 +14,7 @@ const CreatePrescription = () => {
           <p>Fill in the diagnosis and prescribed medications</p>
         </div>
         {appointmentId ? (
-          <PrescriptionForm />
+          <PrescriptionForm appointmentId={appointmentId} />
         ) : (
           <div className="error-message">
             No appointment selected. Please select an appointment to create a prescription.

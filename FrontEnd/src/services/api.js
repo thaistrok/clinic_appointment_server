@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create an axios instance with default configuration
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-  timeout: 10000,
+  timeout: 30000, // Increased from 10000ms to 30000ms (30 seconds)
   headers: {
     'Content-Type': 'application/json',
   },
@@ -30,8 +30,9 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Redirect to login page if unauthorized
+      // Clear local storage and redirect to login page if unauthorized
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -44,6 +45,7 @@ export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
   },
   updatePassword: (passwordData) => api.put('/auth/password', passwordData),
   getProfile: () => api.get('/auth/profile'),

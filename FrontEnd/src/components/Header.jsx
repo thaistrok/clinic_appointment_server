@@ -25,7 +25,7 @@ const handleLogout = () => {
         <div className="user-menu">
           {isAuthenticated() ? (
             <div className="user-info">
-              <span className="user-name">Hello, {user?.name}!</span> 
+              <span className="user-name">Hello {user?.name}</span> 
               <div className="user-dropdown">
                 <button className="dropdown-toggle">
                   Account
