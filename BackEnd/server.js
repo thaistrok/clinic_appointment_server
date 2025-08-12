@@ -3,7 +3,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 
-
 // Load environment variables
 dotenv.config();
 
@@ -20,6 +19,7 @@ const AuthRouter = require('./routes/AuthRouter');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const prescriptionRoutes = require('./routes/prescriptionRoutes');
+const medicationRoutes = require('./routes/medicationRoutes');
 
 // Connect to database
 connectDB();
@@ -34,32 +34,22 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'))
+app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', AuthRouter);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
+app.use('/api/medications', medicationRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
   res.status(200).json({ message: 'Server is running!', timestamp: new Date().toISOString() });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
 // Add this to your server.js
 app.get('/favicon.ico', (req, res) => res.status(204).end());
-
-// Add this to your server.js
-app.get('/', (req, res) => {
-  res.json({ message: 'Clinic Appointment API is running!' });
-});
 
 // Add this after the middleware setup and before the 404 handler
 app.get('/', (req, res) => {
@@ -70,7 +60,9 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       users: '/api/users',
-      appointments: '/api/appointments'
+      appointments: '/api/appointments',
+      prescriptions: '/api/prescriptions',
+      medications: '/api/medications'
     }
   });
 });
@@ -78,6 +70,12 @@ app.get('/', (req, res) => {
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
 app.listen(PORT, () => {

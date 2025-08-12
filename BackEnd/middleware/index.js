@@ -94,18 +94,53 @@ const checkAppointmentAuthorization = async (req, res, next) => {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
+
     // Check if user is authorized to access this appointment
-    if (req.user.role !== 'admin' && 
-        appointment.patient.toString() !== req.user.id && 
-        appointment.doctor.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Access denied' });
+    if (req.user.role !== 'admin') {
+      // For doctors, check if they are the assigned doctor
+      if (req.user.role === 'doctor') {
+        // Check if appointment has a valid doctor reference
+        if (!appointment.doctor) {
+          return res.status(403).json({ 
+            message: 'Access denied. This appointment is not assigned to a doctor.' 
+          });
+        }
+        
+        // Check if the doctor ID matches - using equals method for proper ObjectId comparison
+        if (!appointment.doctor.equals(req.user._id)) {
+          return res.status(403).json({ 
+            message: 'Access denied. You are not the assigned doctor for this appointment.' 
+          });
+        }
+      }
+      // For patients, check if they are the assigned patient
+      else if (req.user.role === 'patient') {
+        // Check if appointment has a valid patient reference
+        if (!appointment.patient) {
+          return res.status(403).json({ 
+            message: 'Access denied. This appointment is not assigned to a patient.' 
+          });
+        }
+        
+        // Check if the patient ID matches - using equals method for proper ObjectId comparison
+        if (!appointment.patient.equals(req.user._id)) {
+          return res.status(403).json({ 
+            message: 'Access denied. You are not the assigned patient for this appointment.' 
+          });
+        }
+      }
+      // For other roles
+      else {
+        return res.status(403).json({ message: 'Access denied. Invalid user role.' });
+      }
     }
     
     // Attach appointment to request for use in controller
     req.appointment = appointment;
     next();
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Authorization error:', error);
+    res.status(500).json({ message: 'Authorization error: ' + error.message });
   }
 };
 

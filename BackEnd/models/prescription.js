@@ -11,6 +11,11 @@ const prescriptionSchema = new mongoose.Schema(
  {timestamps: true}
 );
 
+// Add indexes for better query performance
+prescriptionSchema.index({ doctor: 1 });
+prescriptionSchema.index({ patient: 1 });
+prescriptionSchema.index({ createdAt: -1 });
+
 const Prescription = mongoose.model('Prescription', prescriptionSchema);
 
 module.exports = Prescription;

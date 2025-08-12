@@ -9,7 +9,10 @@ const appointmentSchema = new mongoose.Schema(
         status: {type: String,
         enum: ['scheduled', 'confirmed', 'completed', 'cancelled'],
         default: 'scheduled'},
-        reason: {type: String,required: true}
+        reason: {type: String,required: true},
+        notes: {type: String},
+        duration: {type: Number, default: 30}, // in minutes
+        isEmergency: {type: Boolean, default: false}
   },
  {timestamps: true}
 );
