@@ -83,65 +83,68 @@ const PrescriptionList = () => {
         <div className="filter-controls">
           <label>Filter: </label>
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="all">All Prescriptions</option>
-            <option value="recent">Last 30 Days</option>
+            <option value="all">All</option>
+            <option value="recent">Recent (30 days)</option>
           </select>
         </div>
       </div>
       
+      {/* Prescriptions list */}
       {prescriptionsToShow.length === 0 ? (
         <div className="no-prescriptions">
           <p>No prescriptions found.</p>
           {user && user.role === 'doctor' && (
-            <p>Create prescriptions from the appointments page.</p>
+            <Link to="/appointments" className="btn btn-primary">
+              View Appointments
+            </Link>
           )}
         </div>
       ) : (
-        <div className="prescriptions-grid">
+        <div className="prescription-grid">
           {prescriptionsToShow.map((prescription) => (
             <div key={prescription._id} className="prescription-card">
               <div className="prescription-header">
-                {user && user.role === 'doctor' ? (
-                  <h3>Prescription for {prescription.patient.name}</h3>
-                ) : (
-                  <h3>Prescription from Dr. {prescription.doctor.name}</h3>
-                )}
+                <h3>Prescription</h3>
                 <span className="prescription-date">
                   {new Date(prescription.createdAt).toLocaleDateString()}
                 </span>
               </div>
               
               <div className="prescription-details">
-                <div className="diagnosis-section">
-                  <h4>Diagnosis</h4>
-                  <p>{prescription.diagnosis}</p>
-                </div>
-                
-                <div className="medications-section">
-                  <h4>Medications</h4>
-                  {prescription.medications && prescription.medications.length > 0 ? (
-                    <ul className="medications-list">
-                      {prescription.medications.map((med, index) => (
-                        <li key={`${prescription._id}-med-${index}`} className="medication-item">
-                          <div className="medication-name">{med.name}</div>
-                          <div className="medication-details">
-                            <span>Dosage: {med.dosage}</span>
-                            <span>Frequency: {med.frequency}</span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>No medications prescribed</p>
-                  )}
-                </div>
+                {prescription.doctor && (
+                  <p><strong>Doctor:</strong> {prescription.doctor.name}</p>
+                )}
+                {prescription.patient && (
+                  <p><strong>Patient:</strong> {prescription.patient.name}</p>
+                )}
+                {prescription.appointment && (
+                  <p><strong>Appointment:</strong> {new Date(prescription.appointment.date).toLocaleDateString()} at {prescription.appointment.time}</p>
+                )}
+                <p><strong>Diagnosis:</strong> {prescription.diagnosis}</p>
               </div>
               
-              <div className="prescription-footer">
-                <p>Appointment Date: {new Date(prescription.appointment.date).toLocaleDateString()}</p>
-                {user && user.role === 'doctor' && (
-                  <p>Patient: {prescription.patient.name}</p>
+              <div className="medications-section">
+                <h4>Medications</h4>
+                {prescription.medications && prescription.medications.length > 0 ? (
+                  <ul className="medications-list">
+                    {prescription.medications.map((med, index) => (
+                      <li key={index} className="medication-item">
+                        <strong>{med.name}</strong> - {med.dosage}, {med.frequency}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No medications listed.</p>
                 )}
+              </div>
+              
+              <div className="prescription-actions">
+                <Link 
+                  to={`/prescriptions/${prescription._id}`} 
+                  className="btn btn-secondary"
+                >
+                  View Details
+                </Link>
               </div>
             </div>
           ))}

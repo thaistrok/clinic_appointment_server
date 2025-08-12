@@ -10,7 +10,8 @@ const Dashboard = () => {
     <div className="dashboard-page">
       <div className="dashboard-container">
         <div className="dashboard-header">
-          <h1>Dashboard</h1> 
+          <h1>Dashboard</h1>
+          <p>Welcome back, {user?.name || 'User'}!</p>
         </div>
         
         <div className="dashboard-cards">
