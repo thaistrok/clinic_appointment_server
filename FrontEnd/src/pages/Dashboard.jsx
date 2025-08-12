@@ -10,8 +10,7 @@ const Dashboard = () => {
     <div className="dashboard-page">
       <div className="dashboard-container">
         <div className="dashboard-header">
-          <h1>Dashboard</h1>
-          <p>Welcome back, {user?.name || 'User'}!</p>
+          <h1>Dashboard</h1> 
         </div>
         
         <div className="dashboard-cards">
@@ -30,6 +29,16 @@ const Dashboard = () => {
               Book Now
             </Link>
           </div>
+          
+          {user?.role === 'doctor' && (
+            <div className="card">
+              <h3>Doctor Dashboard</h3>
+              <p>Manage appointments and create prescriptions</p>
+              <Link to="/doctor-dashboard" className="card-button">
+                Doctor Dashboard
+              </Link>
+            </div>
+          )}
           
           <div className="card">
             <h3>Update Password</h3>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { appointmentAPI, prescriptionAPI } from '../services/api.js';
+import MedicationDropdown from './MedicationDropdown.jsx';
 import '../styles/PrescriptionForm.css';
 
 const PrescriptionForm = () => {
@@ -45,6 +46,16 @@ const PrescriptionForm = () => {
     const updatedMedications = [...medications];
     updatedMedications[index][field] = value;
     setMedications(updatedMedications);
+  };
+
+  const handleMedicationSelect = (index, medication) => {
+    if (medication) {
+      const updatedMedications = [...medications];
+      updatedMedications[index].name = medication.name;
+      updatedMedications[index].dosage = medication.dosage;
+      updatedMedications[index].frequency = medication.frequency;
+      setMedications(updatedMedications);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -106,72 +117,69 @@ const PrescriptionForm = () => {
             id="diagnosis"
             value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
-            required
             placeholder="Enter diagnosis"
-            rows="4"
+            required
           />
         </div>
         
-        <div className="form-group">
-          <label>Medications:</label>
+        <div className="medications-section">
+          <h3>Medications</h3>
           {medications.map((med, index) => (
             <div key={index} className="medication-row">
-              <div className="medication-field">
-                <input
-                  type="text"
-                  placeholder="Medication name"
-                  value={med.name}
-                  onChange={(e) => handleMedicationChange(index, 'name', e.target.value)}
+              <div className="medication-select">
+                <label>Medication:</label>
+                <MedicationDropdown
+                  onSelect={(medication) => handleMedicationSelect(index, medication)}
+                  placeholder="Select a medication..."
                 />
               </div>
-              <div className="medication-field">
-                <input
-                  type="text"
-                  placeholder="Dosage (e.g., 10mg)"
-                  value={med.dosage}
-                  onChange={(e) => handleMedicationChange(index, 'dosage', e.target.value)}
-                />
+              <div className="medication-details">
+                <div className="form-group">
+                  <label>Name:</label>
+                  <input
+                    type="text"
+                    value={med.name}
+                    onChange={(e) => handleMedicationChange(index, 'name', e.target.value)}
+                    placeholder="Medication name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Dosage:</label>
+                  <input
+                    type="text"
+                    value={med.dosage}
+                    onChange={(e) => handleMedicationChange(index, 'dosage', e.target.value)}
+                    placeholder="Dosage"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Frequency:</label>
+                  <input
+                    type="text"
+                    value={med.frequency}
+                    onChange={(e) => handleMedicationChange(index, 'frequency', e.target.value)}
+                    placeholder="Frequency"
+                  />
+                </div>
               </div>
-              <div className="medication-field">
-                <input
-                  type="text"
-                  placeholder="Frequency (e.g., twice daily)"
-                  value={med.frequency}
-                  onChange={(e) => handleMedicationChange(index, 'frequency', e.target.value)}
-                />
-              </div>
-              {medications.length > 1 && (
-                <button
-                  type="button"
-                  className="remove-medication"
-                  onClick={() => handleRemoveMedication(index)}
-                >
-                  Remove
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => handleRemoveMedication(index)}
+                className="remove-btn"
+                disabled={medications.length <= 1}
+              >
+                Remove
+              </button>
             </div>
           ))}
-          <button 
-            type="button" 
-            className="add-medication"
-            onClick={handleAddMedication}
-          >
+          <button type="button" onClick={handleAddMedication} className="add-medication-btn">
             Add Medication
           </button>
         </div>
         
-        <div className="form-actions">
-          <button 
-            type="button" 
-            className="cancel-button"
-            onClick={() => navigate('/appointments')}
-          >
-            Cancel
-          </button>
-          <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? 'Creating...' : 'Create Prescription'}
-          </button>
-        </div>
+        <button type="submit" disabled={loading} className="submit-btn">
+          {loading ? 'Creating...' : 'Create Prescription'}
+        </button>
       </form>
     </div>
   );

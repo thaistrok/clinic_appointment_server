@@ -111,7 +111,7 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
       }
 
       // Add default status
-      appointmentData.status = 'CONFIRMED';
+      appointmentData.status = 'confirmed';
 
       // Call the API
       const result = await execute(

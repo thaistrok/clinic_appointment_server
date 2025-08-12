@@ -1,8 +1,11 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import PrescriptionForm from '../components/PrescriptionForm.jsx';
 import '../styles/CreatePrescription.css';
 
 const CreatePrescription = () => {
+  const { appointmentId } = useParams();
+
   return (
     <div className="create-prescription-page">
       <div className="create-prescription-container">
@@ -10,7 +13,13 @@ const CreatePrescription = () => {
           <h1>Create Prescription</h1>
           <p>Fill in the diagnosis and prescribed medications</p>
         </div>
-        <PrescriptionForm />
+        {appointmentId ? (
+          <PrescriptionForm />
+        ) : (
+          <div className="error-message">
+            No appointment selected. Please select an appointment to create a prescription.
+          </div>
+        )}
       </div>
     </div>
   );

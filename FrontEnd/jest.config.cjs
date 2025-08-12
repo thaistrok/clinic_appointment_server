@@ -15,5 +15,8 @@ module.exports = {
   ],
   transform: {
     '^.+\\.jsx?$': 'babel-jest'
+  },
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons'],
   }
 };

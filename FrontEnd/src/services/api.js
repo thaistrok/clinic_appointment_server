@@ -79,4 +79,13 @@ export const prescriptionAPI = {
   deletePrescription: (id) => api.delete(`/prescriptions/${id}`),
 };
 
+// Medication API calls
+export const medicationAPI = {
+  getMedications: () => api.get('/medications'),
+  getMedication: (id) => api.get(`/medications/${id}`),
+  createMedication: (medicationData) => api.post('/medications', medicationData),
+  updateMedication: (id, medicationData) => api.put(`/medications/${id}`, medicationData),
+  deleteMedication: (id) => api.delete(`/medications/${id}`),
+};
+
 export default api;

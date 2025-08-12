@@ -8,6 +8,7 @@ import NewAppointment from './pages/NewAppointment';
 import EditAppointment from './pages/EditAppointment';
 import Prescriptions from './pages/Prescriptions';
 import CreatePrescription from './pages/CreatePrescription';
+import DoctorDashboard from './pages/DoctorDashboard';
 import Profile from './pages/Profile';
 import PasswordUpdate from './pages/PasswordUpdate';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -30,6 +31,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/doctor-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="doctor">
+                <DoctorDashboard />
               </ProtectedRoute>
             } 
           />
@@ -95,4 +104,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

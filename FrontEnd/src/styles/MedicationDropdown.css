@@ -1,0 +1,72 @@
+.medication-dropdown-container {
+  width: 100%;
+}
+
+.medication-dropdown,
+.medication-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  margin: 8px 0;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.medication-dropdown:disabled,
+.medication-input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.medication-dropdown:focus,
+.medication-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.medication-dropdown-error {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+/* Remove default arrow in IE */
+.medication-dropdown::-ms-expand {
+  display: none;
+}
+
+/* Mobile optimization */
+@media (max-width: 600px) {
+  .medication-dropdown,
+  .medication-input {
+    padding: 10px 14px;
+    font-size: 16px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .medication-dropdown,
+  .medication-input {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
+  }
+  
+  .medication-dropdown:focus,
+  .medication-input:focus {
+    border-color: #4d9eff;
+    box-shadow: 0 0 0 3px rgba(77, 158, 255, 0.25);
+  }
+  
+  .medication-dropdown:disabled,
+  .medication-input:disabled {
+    background-color: #444;
+  }
+}
