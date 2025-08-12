@@ -10,36 +10,36 @@ const Prescriptions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchMedications = async () => {
-      try {
-        const response = await medicationAPI.getMedications();
-        setMedications(response.data);
-      } catch (err) {
-        console.error('Error fetching medications:', err);
-        setError('Failed to load medications');
+  // useEffect(() => {
+  //   const fetchMedications = async () => {
+  //     try {
+  //       const response = await medicationAPI.getMedications();
+  //       setMedications(response.data);
+  //     } catch (err) {
+  //       console.error('Error fetching medications:', err);
+  //       setError('Failed to load medications');
         
-        // Fallback medications
-        const fallbackMedications = [
-          { name: 'Paracetamol', dosage: '500mg', frequency: 'Every 6 hours' },
-          { name: 'Ibuprofen', dosage: '200mg', frequency: 'Every 8 hours' },
-          { name: 'Amoxicillin', dosage: '250mg', frequency: 'Every 8 hours' },
-          { name: 'Metformin', dosage: '500mg', frequency: 'Twice a day' },
-          { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' },
-          { name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily at bedtime' },
-          { name: 'Omeprazole', dosage: '40mg', frequency: 'Once daily before breakfast' },
-          { name: 'Cetirizine', dosage: '10mg', frequency: 'Once daily' },
-          { name: 'Salbutamol', dosage: '100mcg', frequency: 'As needed (max 4 times/day)' },
-          { name: 'Hydrochlorothiazide', dosage: '25mg', frequency: 'Once daily in the morning' }
-        ];
-        setMedications(fallbackMedications);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       // Fallback medications
+  //       const fallbackMedications = [
+  //         { name: 'Paracetamol', dosage: '500mg', frequency: 'Every 6 hours' },
+  //         { name: 'Ibuprofen', dosage: '200mg', frequency: 'Every 8 hours' },
+  //         { name: 'Amoxicillin', dosage: '250mg', frequency: 'Every 8 hours' },
+  //         { name: 'Metformin', dosage: '500mg', frequency: 'Twice a day' },
+  //         { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' },
+  //         { name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily at bedtime' },
+  //         { name: 'Omeprazole', dosage: '40mg', frequency: 'Once daily before breakfast' },
+  //         { name: 'Cetirizine', dosage: '10mg', frequency: 'Once daily' },
+  //         { name: 'Salbutamol', dosage: '100mcg', frequency: 'As needed (max 4 times/day)' },
+  //         { name: 'Hydrochlorothiazide', dosage: '25mg', frequency: 'Once daily in the morning' }
+  //       ];
+  //       setMedications(fallbackMedications);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchMedications();
-  }, []);
+  //   fetchMedications();
+  // }, []);
 
   const handleMedicationSelect = (medication) => {
     setSelectedMedication(medication);
@@ -53,11 +53,9 @@ const Prescriptions = () => {
           <p>View your prescriptions from doctors</p>
         </div>
         
-        {/* Medication Dropdown Section */}
+        
         <div className="medication-search-section">
-          <h2>Search Medications</h2>
-          <p>Search our comprehensive database for detailed medication information, including usage instructions, side effects, and contraindications.</p>
-          
+         
           {loading ? (
             <p>Loading medications...</p>
           ) : (
@@ -88,7 +86,7 @@ const Prescriptions = () => {
           )}
         </div>
         
-        {/* Prescriptions List */}
+       
         <PrescriptionList />
       </div>
     </div>

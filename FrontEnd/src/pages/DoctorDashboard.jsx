@@ -169,7 +169,7 @@ const DoctorDashboard = () => {
     <div className="doctor-dashboard">
       <div className="dashboard-header">
         <h1>Doctor Dashboard</h1>
-        <p>Welcome, Dr. {user?.name || 'Doctor'}!</p>
+        <p><h2>ــــــــــــــــ</h2> </p>
       </div>
 
       <div className="dashboard-content">
