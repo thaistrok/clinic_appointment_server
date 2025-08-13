@@ -30,7 +30,7 @@ const PrescriptionForm = ({ appointmentId: propAppointmentId }) => {
     if (actualAppointmentId) {
       fetchAppointment();
     }
-  }, [actualAppointmentId]);
+  }, []);
 
   const handleAddMedication = () => {
     setMedications([...medications, { name: '', dosage: '', frequency: '' }]);

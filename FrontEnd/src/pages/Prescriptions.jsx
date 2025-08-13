@@ -57,7 +57,7 @@ const Prescriptions = () => {
         <div className="medication-search-section">
          
           {loading ? (
-            <p>Loading medications...</p>
+            <p></p>
           ) : (
             <>
               <MedicationDropdown

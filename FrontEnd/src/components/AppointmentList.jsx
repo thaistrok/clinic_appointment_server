@@ -228,14 +228,7 @@ const AppointmentList = () => {
               </div>
               
               <div className="appointment-actions">
-                {user && user.role === 'doctor' && (
-                  <Link 
-                    to={`/prescriptions/create/${appointment._id}`} 
-                    className="btn btn-primary"
-                  >
-                    Create Prescription
-                  </Link>
-                )}
+               
                 <button 
                   onClick={() => handleEdit(appointment._id)}
                   className="btn btn-secondary"

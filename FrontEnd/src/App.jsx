@@ -91,6 +91,14 @@ function App() {
             } 
           />
           <Route 
+            path="/prescriptions/:id" 
+            element={
+              <ProtectedRoute>
+                <Prescriptions />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/profile" 
             element={
               <ProtectedRoute>
