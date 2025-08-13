@@ -138,14 +138,7 @@ const PrescriptionList = () => {
                 )}
               </div>
               
-              <div className="prescription-actions">
-                <Link 
-                  to={`/prescriptions/${prescription._id}`} 
-                  className="btn btn-secondary"
-                >
-                  View Details
-                </Link>
-              </div>
+             
             </div>
           ))}
         </div>
