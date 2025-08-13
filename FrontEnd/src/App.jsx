@@ -20,7 +20,6 @@ function App() {
   return (
     <>
       <Header />
-   
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />

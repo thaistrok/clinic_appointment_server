@@ -4,6 +4,7 @@ import Nav from './Nav';
 import { isAuthenticated, logout } from '../services/auth.js';
 import '../styles/Header.css';
 import { getCurrentUser } from '../services/auth.js';
+
 const Header = () => {
 const navigate = useNavigate();
 const user = getCurrentUser()

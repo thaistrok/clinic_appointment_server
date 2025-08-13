@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
 
-/**
- * Custom hook for handling API calls with loading and error states
- * @param {Function} apiCall - The API function to call
- * @param {Array} deps - Dependencies for useEffect
- */
 export const useApi = (apiCall, deps = []) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

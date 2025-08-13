@@ -20,8 +20,34 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
   
   const { execute, loading: apiLoading, error: apiError, success } = useApiMutation();
 
+  // Function to format date for input field (converts various date formats to yyyy-MM-dd)
+  const formatDateForInput = (dateValue) => {
+    if (!dateValue) return '';
+    
+    let dateObj;
+    if (typeof dateValue === 'string') {
+      // Handle various string formats
+      dateObj = new Date(dateValue);
+    } else if (dateValue instanceof Date) {
+      // Handle Date objects
+      dateObj = dateValue;
+    } else {
+      // Handle other cases
+      return '';
+    }
+    
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return '';
+    }
+    
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   useEffect(() => {
-    // Fetch doctors list
     const fetchDoctors = async () => {
       try {
         const response = await userAPI.getDoctors();
@@ -30,8 +56,6 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
           setDoctor(response.data[0]._id);
         }
       } catch (err) {
-        console.error('Failed to fetch doctors', err);
-        // Fallback to mock doctors if API fails
         const mockDoctors = [
           { _id: '688f89196d5e34b989bb98af', name: 'Dr. Yousif', specialty: 'Node.js_Express.js_React.js_Pytyhon' },
           { _id: '688f891a6d5e34b989bb98b2', name: 'Dr. Michael', specialty: 'Express.js_React.js' },
@@ -46,113 +70,84 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
 
     fetchDoctors();
 
-    // If editing an appointment, populate the form
     if (appointment) {
-      setDate(appointment.date);
+      setDate(formatDateForInput(appointment.date));
       setTime(appointment.time);
-      setDoctor(appointment.doctorId || appointment.doctor);
-      setReason(appointment.reason);
+      setDoctor(appointment.doctor?._id || '');
+      setReason(appointment.reason || '');
     }
   }, [appointment]);
 
   useEffect(() => {
-    // Fetch available slots when date or doctor changes
-    const fetchAvailableSlots = async () => {
-      if (date && doctor) {
+    if (date && doctor) {
+      const fetchSlots = async () => {
         try {
-          const response = await getAvailableSlots(doctor, date);
-          setAvailableSlots(response);
-          // Reset time selection when slots change
-          setTime('');
+          const slots = await getAvailableSlots(doctor, date);
+          setAvailableSlots(slots);
+          if (slots.length > 0 && !appointment) {
+            setTime(slots[0].time);
+          }
         } catch (err) {
-          console.error('Failed to fetch available slots', err);
+          console.error('Error fetching available slots:', err);
+          setAvailableSlots([]);
         }
-      } else {
-        // Clear available slots and time selection when date or doctor is cleared
-        setAvailableSlots([]);
-        setTime('');
-      }
-    };
-
-    fetchAvailableSlots();
-  }, [date, doctor]);
+      };
+      
+      fetchSlots();
+    } else {
+      setAvailableSlots([]);
+      setTime('');
+    }
+  }, [date, doctor, appointment]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    // Validate that all required fields are filled
-    if (!date || !time || !doctor || !reason) {
-      setError('Please fill in all required fields');
-      setLoading(false);
-      return;
-    }
+    const appointmentData = {
+      date,
+      time,
+      doctor,
+      reason,
+      patient: user._id
+    };
 
     try {
-      // Prepare appointment data
-      const appointmentData = {
-        date,
-        time,
-        doctor,
-        reason
-      };
-
-      // Add patient information if available
-      if (user && user.id) {
-        appointmentData.patient = user.id;
-        appointmentData.patientName = user.name;
+      let result;
+      if (appointment) {
+        result = await execute(appointmentAPI.updateAppointment, {
+          id: appointment._id,
+          ...appointmentData
+        });
+      } else {
+        result = await execute(appointmentAPI.createAppointment, appointmentData);
       }
-
-      // Add doctor name
-      const selectedDoctor = doctors.find(doc => doc._id === doctor);
-      if (selectedDoctor) {
-        appointmentData.doctorName = selectedDoctor.name;
-      }
-
-      // Add default status
-      appointmentData.status = 'confirmed';
-
-      // Call the API
-      const result = await execute(
-        appointment 
-          ? appointmentAPI.updateAppointment.bind(null, appointment._id) 
-          : appointmentAPI.createAppointment,
-        appointmentData
-      );
 
       if (result.success) {
-        // Navigate to appointments page on success
-        navigate('/appointments');
-      } else {
-        setError(result.error);
+        if (onSubmit) {
+          onSubmit(result.data);
+        } else {
+          navigate('/appointments');
+        }
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save appointment');
+      setError('Failed to save appointment');
     } finally {
       setLoading(false);
     }
   };
 
+  const isFormValid = date && time && doctor && reason;
+
   return (
     <div className="appointment-form-container">
-      <form className="appointment-form" onSubmit={handleSubmit}>
-        <h2>{appointment ? 'Edit Appointment' : 'Book New Appointment'}</h2>
-        
-        {(error || apiError) && <div className="error-message">{error || apiError}</div>}
-        
-        <div className="form-group">
-          <label htmlFor="date">Date:</label>
-          <input
-            type="date"
-            id="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-            min={new Date().toISOString().split('T')[0]}
-          />
-        </div>
-        
+      <h2>{appointment ? 'Edit Appointment' : 'Book New Appointment'}</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      {apiError && <div className="error-message">{apiError}</div>}
+      
+      <form onSubmit={handleSubmit} className="appointment-form">
         <div className="form-group">
           <label htmlFor="doctor">Doctor:</label>
           <select
@@ -160,7 +155,9 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
             value={doctor}
             onChange={(e) => setDoctor(e.target.value)}
             required
+            disabled={apiLoading}
           >
+            <option value="">Select a doctor</option>
             {doctors.map((doc) => (
               <option key={doc._id} value={doc._id}>
                 {doc.name} - {doc.specialty}
@@ -168,7 +165,20 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
             ))}
           </select>
         </div>
-        
+
+        <div className="form-group">
+          <label htmlFor="date">Date:</label>
+          <input
+            type="date"
+            id="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            required
+            disabled={apiLoading}
+          />
+        </div>
+
         <div className="form-group">
           <label htmlFor="time">Time:</label>
           <select
@@ -176,39 +186,46 @@ const AppointmentForm = ({ appointment, onSubmit }) => {
             value={time}
             onChange={(e) => setTime(e.target.value)}
             required
-            disabled={!date || !doctor}
+            disabled={apiLoading || !date || !doctor}
           >
             <option value="">Select a time slot</option>
             {availableSlots.map((slot) => (
-              <option key={`${date}-${doctor}-${slot.time}`} value={slot.time} disabled={!slot.available}>
-                {slot.time} ({slot.available ? 'Available' : 'Booked'})
+              <option key={slot.time} value={slot.time}>
+                {slot.time}
               </option>
             ))}
           </select>
         </div>
-        
+
         <div className="form-group">
           <label htmlFor="reason">Reason for visit:</label>
           <textarea
             id="reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            required
             placeholder="Briefly describe the reason for your visit"
+            required
+            disabled={apiLoading}
             rows="4"
           />
         </div>
-        
+
         <div className="form-actions">
           <button 
+            type="submit" 
+            disabled={apiLoading || !isFormValid}
+            className="btn btn-primary"
+          >
+            {apiLoading ? 'Saving...' : (appointment ? 'Update Appointment' : 'Book Appointment')}
+          </button>
+          
+          <button 
             type="button" 
-            className="cancel-button"
             onClick={() => navigate('/appointments')}
+            disabled={apiLoading}
+            className="btn btn-secondary"
           >
             Cancel
-          </button>
-          <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? 'Saving...' : (appointment ? 'Update Appointment' : 'Book Appointment')}
           </button>
         </div>
       </form>

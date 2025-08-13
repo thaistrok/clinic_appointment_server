@@ -137,8 +137,6 @@ const PrescriptionList = () => {
                   <p>No medications listed.</p>
                 )}
               </div>
-              
-             
             </div>
           ))}
         </div>

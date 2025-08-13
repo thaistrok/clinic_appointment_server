@@ -10,37 +10,7 @@ const Prescriptions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // useEffect(() => {
-  //   const fetchMedications = async () => {
-  //     try {
-  //       const response = await medicationAPI.getMedications();
-  //       setMedications(response.data);
-  //     } catch (err) {
-  //       console.error('Error fetching medications:', err);
-  //       setError('Failed to load medications');
-        
-  //       // Fallback medications
-  //       const fallbackMedications = [
-  //         { name: 'Paracetamol', dosage: '500mg', frequency: 'Every 6 hours' },
-  //         { name: 'Ibuprofen', dosage: '200mg', frequency: 'Every 8 hours' },
-  //         { name: 'Amoxicillin', dosage: '250mg', frequency: 'Every 8 hours' },
-  //         { name: 'Metformin', dosage: '500mg', frequency: 'Twice a day' },
-  //         { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' },
-  //         { name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily at bedtime' },
-  //         { name: 'Omeprazole', dosage: '40mg', frequency: 'Once daily before breakfast' },
-  //         { name: 'Cetirizine', dosage: '10mg', frequency: 'Once daily' },
-  //         { name: 'Salbutamol', dosage: '100mcg', frequency: 'As needed (max 4 times/day)' },
-  //         { name: 'Hydrochlorothiazide', dosage: '25mg', frequency: 'Once daily in the morning' }
-  //       ];
-  //       setMedications(fallbackMedications);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchMedications();
-  // }, []);
-
+ 
   const handleMedicationSelect = (medication) => {
     setSelectedMedication(medication);
   };
@@ -53,30 +23,14 @@ const Prescriptions = () => {
           <p>View your prescriptions from doctors</p>
         </div>
         
-        
         <div className="medication-search-section">
-         
           {loading ? (
-            <></>
+            <div className="loading-message">
+             
+            </div>
           ) : (
             <>
-              <MedicationDropdown
-                medications={medications}
-                onSelect={handleMedicationSelect}
-                placeholder="Select a medication to view details..."
-              />
-              
-              {selectedMedication && (
-                <div className="selected-medication-details">
-                  <h3>Medication Details</h3>
-                  <div className="medication-info">
-                    <p><strong>Name:</strong> {selectedMedication.name}</p>
-                    <p><strong>Dosage:</strong> {selectedMedication.dosage}</p>
-                    <p><strong>Frequency:</strong> {selectedMedication.frequency}</p>
-                  </div>
-                </div>
-              )}
-              
+             
               {error && (
                 <div className="medication-error">
                   <p>{error}</p>
@@ -86,7 +40,6 @@ const Prescriptions = () => {
           )}
         </div>
         
-       
         <PrescriptionList />
       </div>
     </div>

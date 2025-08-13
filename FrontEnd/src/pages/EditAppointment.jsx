@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppointmentForm from '../components/AppointmentForm.jsx';
 import { appointmentAPI } from '../services/api.js';
+import { isAuthenticated } from '../services/auth.js';
 import '../styles/EditAppointment.css';
 
 const EditAppointment = () => {
@@ -12,25 +13,40 @@ const EditAppointment = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      navigate('/login');
+      return;
+    }
+
     const fetchAppointment = async () => {
       try {
         setLoading(true);
+        setError('');
+        
+        if (!id) {
+          throw new Error('No appointment ID provided');
+        }
+        
         const response = await appointmentAPI.getAppointment(id);
         setAppointment(response.data);
       } catch (err) {
-        setError('Failed to fetch appointment details');
         console.error('Error fetching appointment:', err);
+        if (err.response?.status === 401) {
+          // Token might be expired, redirect to login
+          navigate('/login');
+        } else if (err.response?.status === 404) {
+          setError('Appointment not found');
+        } else {
+          setError('Failed to fetch appointment details: ' + (err.response?.data?.message || err.message));
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchAppointment();
-    } else {
-      setLoading(false);
-    }
-  }, [id]);
+    fetchAppointment();
+  }, [id, navigate]);
 
   const handleFormSubmit = async (appointmentData) => {
     try {
@@ -43,9 +59,15 @@ const EditAppointment = () => {
       // Navigate back to appointments list
       navigate('/appointments');
     } catch (err) {
-      setError('Failed to update appointment');
       console.error('Error updating appointment:', err);
-      alert('Failed to update appointment: ' + (err.response?.data?.message || err.message));
+      if (err.response?.status === 401) {
+        // Token might be expired, redirect to login
+        navigate('/login');
+      } else {
+        const errorMessage = 'Failed to update appointment: ' + (err.response?.data?.message || err.message);
+        setError(errorMessage);
+        alert(errorMessage);
+      }
     }
   };
 
@@ -54,11 +76,37 @@ const EditAppointment = () => {
   }
 
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return (
+      <div className="edit-appointment-page">
+        <div className="edit-appointment-container">
+          <div className="error-message">
+            {error}
+            <div style={{ marginTop: '10px' }}>
+              <button onClick={() => navigate('/appointments')} className="btn btn-secondary">
+                Back to Appointments
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!appointment) {
-    return <div className="error-message">Appointment not found</div>;
+    return (
+      <div className="edit-appointment-page">
+        <div className="edit-appointment-container">
+          <div className="error-message">
+            Appointment not found
+            <div style={{ marginTop: '10px' }}>
+              <button onClick={() => navigate('/appointments')} className="btn btn-secondary">
+                Back to Appointments
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

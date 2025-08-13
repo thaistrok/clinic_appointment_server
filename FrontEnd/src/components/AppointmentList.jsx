@@ -9,8 +9,8 @@ const AppointmentList = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all'); // all, upcoming, past
-  const [sortBy, setSortBy] = useState('date'); // date, status
+  const [filter, setFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('date');
   const navigate = useNavigate();
   const user = getCurrentUser();
 
@@ -33,214 +33,175 @@ const AppointmentList = () => {
       setLoading(true);
       setError('');
       
-      // For doctors, fetch all appointments
-      // For patients, fetch only their appointments
-      let response;
-      if (user && user.role === 'doctor') {
-        response = await appointmentAPI.getAppointments();
-      } else {
-        response = await appointmentAPI.getMyAppointments();
-      }
-      
-      const data = response.data;
-      setAppointments(data);
+      const response = await appointmentAPI.getAppointments();
+      setAppointments(response.data);
     } catch (err) {
-      console.error('Error fetching appointments:', err);
-      
-      // Handle timeout error specifically
-      if (err.code === 'ECONNABORTED' || (err.message && err.message.includes('timeout'))) {
-        setError('Server is taking too long to respond. Please check your connection or try again later.');
-      } else if (err.response?.status === 401) {
-        setError('Authentication failed. Please log in again.');
-      } else if (err.response?.status === 403) {
-        setError('Access denied. You do not have permission to view appointments.');
-      } else if (!err.response) {
-        setError('Network error. Please check your connection and try again.');
-      } else {
-        setError('Failed to fetch appointments. Please try again later.');
-      }
-      
-      // Clear appointments on error to avoid showing stale data
-      setAppointments([]);
+      setError('Failed to fetch appointments. Please try again later.');
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     fetchAppointments();
-  }, []);
+  }, [fetchAppointments]);
 
-  const filteredAndSortedAppointments = () => {
-    let filtered = [...appointments];
-    
-    // Apply filter
-    const now = new Date();
-    if (filter === 'upcoming') {
-      filtered = filtered.filter(app => new Date(app.date) >= now);
-    } else if (filter === 'past') {
-      filtered = filtered.filter(app => new Date(app.date) < now);
-    }
-    
-    // Apply sorting
-    if (sortBy === 'date') {
-      filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-    } else if (sortBy === 'status') {
-      filtered.sort((a, b) => a.status.localeCompare(b.status));
-    }
-    
-    return filtered;
-  };
-
-  const handleCancelAppointment = async (id) => {
-    // Validate the ID before proceeding
-    if (!validateAppointmentId(id, 'cancel')) {
+  const handleDelete = async (id) => {
+    if (!validateAppointmentId(id)) {
+      setError('Invalid appointment ID');
       return;
     }
-    
-    if (window.confirm('Are you sure you want to cancel this appointment?')) {
-      try {
-        await appointmentAPI.deleteAppointment(id);
-        // Remove the cancelled appointment from the list
-        setAppointments(appointments.filter(app => app._id !== id));
-      } catch (err) {
-        alert('Failed to cancel appointment');
-        console.error('Error cancelling appointment:', err);
-      }
-    }
-  };
 
-  const handleDeleteAppointment = async (id) => {
-    // Add debugging to check the ID value
-    console.log('Attempting to delete appointment with ID:', id);
-    
-    // Check if ID is valid
-    if (!validateAppointmentId(id, 'delete')) {
-      return;
-    }
-    
-    if (window.confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+    if (window.confirm('Are you sure you want to delete this appointment?')) {
       try {
         await appointmentAPI.deleteAppointment(id);
-        // Remove the deleted appointment from the list
         setAppointments(appointments.filter(app => app._id !== id));
-        alert('Appointment deleted successfully');
       } catch (err) {
-        alert('Failed to delete appointment');
-        console.error('Error deleting appointment:', err);
+        setError('Failed to delete appointment. Please try again.');
       }
     }
   };
 
   const handleEdit = (id) => {
-    // Validate the ID before proceeding
-    if (!validateAppointmentId(id, 'update')) {
+    if (!validateAppointmentId(id)) {
+      setError('Invalid appointment ID');
       return;
     }
-    
-    // Navigate to the edit page
     navigate(`/appointments/${id}/edit`);
+  };
+
+  const handleCreatePrescription = (appointment) => {
+    navigate('/prescriptions/create', { state: { appointment } });
+  };
+
+  const filteredAppointments = appointments.filter(app => {
+    if (filter === 'upcoming') {
+      return new Date(app.date + 'T' + app.time) > new Date();
+    }
+    if (filter === 'past') {
+      return new Date(app.date + 'T' + app.time) < new Date();
+    }
+    return true;
+  });
+
+  const sortedAppointments = [...filteredAppointments].sort((a, b) => {
+    if (sortBy === 'date') {
+      return new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time);
+    }
+    if (sortBy === 'status') {
+      return a.status.localeCompare(b.status);
+    }
+    return 0;
+  });
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'confirmed':
+        return 'status-confirmed';
+      case 'cancelled':
+        return 'status-cancelled';
+      case 'completed':
+        return 'status-completed';
+      default:
+        return 'status-pending';
+    }
   };
 
   if (loading) {
     return <div className="loading">Loading appointments...</div>;
   }
 
-  if (error) {
-    return (
-      <div className="error">
-        <p>Error: {error}</p>
-        <div className="error-actions">
-          <button onClick={handleRetry} className="btn btn-primary">
+  return (
+    <div className="appointment-list-container">
+      <div className="appointment-list-header">
+        <h2>My Appointments</h2>
+        <Link to="/appointments/new" className="btn btn-primary">
+          Book New Appointment
+        </Link>
+      </div>
+
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={handleRetry} className="retry-button">
             Retry
           </button>
-          <button onClick={() => window.location.reload()} className="btn btn-secondary">
-            Refresh Page
-          </button>
         </div>
-      </div>
-    );
-  }
+      )}
 
-  const appointmentsToShow = filteredAndSortedAppointments();
-
-  return (
-    <div className="appointment-list">
-      <div className="appointment-list-header">
-        <h2>{user && user.role === 'doctor' ? 'All Appointments' : 'My Appointments'}</h2>
-        {user && user.role === 'patient' && (
-          <Link to="/appointments/new" className="btn btn-primary">
-            New Appointment
-          </Link>
-        )}
-      </div>
-      
-      {/* Filter and sort controls */}
-      <div className="appointment-controls">
-        <div className="filter-controls">
-          <label>Filter: </label>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+      <div className="filters">
+        <div className="filter-group">
+          <label htmlFor="filter">Filter:</label>
+          <select
+            id="filter"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
             <option value="all">All Appointments</option>
             <option value="upcoming">Upcoming</option>
             <option value="past">Past</option>
           </select>
         </div>
-        
-        <div className="sort-controls">
-          <label>Sort by: </label>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+
+        <div className="filter-group">
+          <label htmlFor="sortBy">Sort by:</label>
+          <select
+            id="sortBy"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
             <option value="date">Date</option>
             <option value="status">Status</option>
           </select>
         </div>
       </div>
-      
-      {appointmentsToShow.length === 0 ? (
+
+      {sortedAppointments.length === 0 ? (
         <div className="no-appointments">
-          <p>You don't have any appointments yet.</p>
-          {user && user.role === 'patient' && (
-            <Link to="/appointments/new" className="btn btn-primary">
-              Schedule Your First Appointment
-            </Link>
-          )}
-          <button onClick={handleRetry} className="btn btn-secondary">
-            Refresh
-          </button>
+          <p>No appointments found.</p>
+          <Link to="/appointments/new" className="btn btn-primary">
+            Book Your First Appointment
+          </Link>
         </div>
       ) : (
-        <div className="appointments-container">
-          {appointmentsToShow.map((appointment) => (
+        <div className="appointments-list">
+          {sortedAppointments.map((appointment) => (
             <div key={appointment._id} className="appointment-card">
+              <div className="appointment-header">
+                <h3>{appointment.doctor?.name || 'Doctor'}</h3>
+                <span className={`status ${getStatusClass(appointment.status)}`}>
+                  {appointment.status}
+                </span>
+              </div>
+              
               <div className="appointment-details">
-                <h3>Appointment #{appointment._id?.substring(0, 8)}</h3>
-                <p><strong>Date & Time:</strong> {formatDate(`${appointment.date}T${appointment.time}`)}</p>
-                <p><strong>Status:</strong> 
-                  <span className={`status ${appointment.status?.toLowerCase()}`}>
-                    {appointment.status}
-                  </span>
-                </p>
+                <p><strong>Date:</strong> {formatDate(`${appointment.date}T${appointment.time}`)}</p>
                 <p><strong>Reason:</strong> {appointment.reason}</p>
-                {user && user.role === 'doctor' ? (
-                  <p><strong>Patient:</strong> {appointment.patientName || (appointment.patient?.name)}</p>
-                ) : (
-                  <p><strong>Doctor:</strong> {appointment.doctorName || (appointment.doctor?.name)}</p>
-                )}
               </div>
               
               <div className="appointment-actions">
-               
                 <button 
                   onClick={() => handleEdit(appointment._id)}
                   className="btn btn-secondary"
                 >
                   Edit
                 </button>
+                
                 <button 
-                  onClick={() => handleDeleteAppointment(appointment._id)}
+                  onClick={() => handleDelete(appointment._id)}
                   className="btn btn-danger"
                 >
                   Delete
                 </button>
+                
+                
+                
+                <Link 
+                  to={`/prescriptions?appointmentId=${appointment._id}`}
+                  className="btn btn-info"
+                >
+                  View Prescriptions
+                </Link>
               </div>
             </div>
           ))}

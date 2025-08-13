@@ -7,9 +7,8 @@ import '../styles/LoginForm.css';
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,23 +17,23 @@ const LoginForm = () => {
     setError('');
 
     const result = await login({ email, password });
-    
+
     if (result.success) {
       navigate('/dashboard');
     } else {
       setError(result.error);
     }
-    
+
     setLoading(false);
   };
 
   return (
     <div className="login-form-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Login to Your Account</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-        
+      <h2>Login to Your Account</h2>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
@@ -43,7 +42,7 @@ const LoginForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="Enter your email"
+            disabled={loading}
           />
         </div>
         
@@ -54,18 +53,22 @@ const LoginForm = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            placeholder="Enter your password"
+            disabled={loading}
           />
         </div>
         
-        <button type="submit" className="login-button" disabled={loading}>
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="btn btn-primary"
+        >
           {loading ? 'Logging in...' : 'Login'}
         </button>
-        
-        <div className="form-footer">
-          <p>Don't have an account? <Link to="/register">Register</Link></p>
-        </div>
       </form>
+      
+      <p className="register-link">
+        Don't have an account? <Link to="/register">Register here</Link>
+      </p>
     </div>
   );
 };
