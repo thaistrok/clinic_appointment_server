@@ -1,8 +1,6 @@
-// index.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-// Strip Token Middleware
 const stripToken = (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -19,7 +17,6 @@ const stripToken = (req, res, next) => {
   }
 };
 
-// Verify Token Middleware
 const verifyToken = (req, res, next) => {
     const {token} = res.locals;
 
@@ -37,7 +34,6 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// JWT Authentication Middleware (Combined)
 const authenticate = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -60,7 +56,6 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-// Authorization Middleware - Check user role
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
@@ -77,7 +72,6 @@ const authorize = (...roles) => {
 
 const Appointment = require('../models/appointment');
 
-// Validate appointment ID
 const validateAppointmentId = (req, res, next) => {
   if (!req.params.id || req.params.id === 'undefined') {
     return res.status(400).json({ message: 'Appointment ID is required' });
@@ -85,7 +79,6 @@ const validateAppointmentId = (req, res, next) => {
   next();
 };
 
-// Check if user is authorized to access appointment
 const checkAppointmentAuthorization = async (req, res, next) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
@@ -94,48 +87,38 @@ const checkAppointmentAuthorization = async (req, res, next) => {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
-
-    // Check if user is authorized to access this appointment
     if (req.user.role !== 'admin') {
-      // For doctors, check if they are the assigned doctor
       if (req.user.role === 'doctor') {
-        // Check if appointment has a valid doctor reference
         if (!appointment.doctor) {
           return res.status(403).json({ 
             message: 'Access denied. This appointment is not assigned to a doctor.' 
           });
         }
         
-        // Check if the doctor ID matches - using equals method for proper ObjectId comparison
-        if (!appointment.doctor.equals(req.user._id)) {
+        if (appointment.doctor.toString() !== req.user._id.toString()) {
           return res.status(403).json({ 
             message: 'Access denied. You are not the assigned doctor for this appointment.' 
           });
         }
       }
-      // For patients, check if they are the assigned patient
       else if (req.user.role === 'patient') {
-        // Check if appointment has a valid patient reference
         if (!appointment.patient) {
           return res.status(403).json({ 
             message: 'Access denied. This appointment is not assigned to a patient.' 
           });
         }
         
-        // Check if the patient ID matches - using equals method for proper ObjectId comparison
-        if (!appointment.patient.equals(req.user._id)) {
+        if (appointment.patient.toString() !== req.user._id.toString()) {
           return res.status(403).json({ 
             message: 'Access denied. You are not the assigned patient for this appointment.' 
           });
         }
       }
-      // For other roles
       else {
         return res.status(403).json({ message: 'Access denied. Invalid user role.' });
       }
     }
     
-    // Attach appointment to request for use in controller
     req.appointment = appointment;
     next();
   } catch (error) {
@@ -144,7 +127,6 @@ const checkAppointmentAuthorization = async (req, res, next) => {
   }
 };
 
-// Combined middleware for validating ID and checking authorization
 const validateAndAuthorizeAppointment = [
   validateAppointmentId,
   checkAppointmentAuthorization

@@ -11,12 +11,11 @@ const {
 const { authenticate, authorize } = require('../middleware');
 const router = express.Router();
 
-
 router.use(authenticate);
 router.get('/', authorize('admin'), getAllUsers);
 router.get('/doctors', getDoctors);
-router.post('/doctor', authorize('admin'), addDoctor); // Route for admin to add new doctors
-router.get('/appointments', authorize('doctor', 'patient'), getAppointmentByUser); // New route to fetch appointments
+router.post('/doctor', authorize('admin'), addDoctor);
+router.get('/appointments', authorize('doctor', 'patient'), getAppointmentByUser);
 router.get('/:id', getUserById);
 router.put('/:id', (req, res, next) => {
   if (req.user.id === req.params.id || req.user.role === 'admin') {
@@ -24,8 +23,5 @@ router.put('/:id', (req, res, next) => {
   }
   return res.status(403).json({ message: 'Access denied' });
 }, updateUser);
-
-// Delete user (Admin only)
 router.delete('/:id', authorize('admin'), deleteUser);
-
 module.exports = router;

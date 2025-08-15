@@ -3,26 +3,19 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const crypto = require('crypto');
 
-// @desc   Register a new user
-// @route  POST /api/auth/register
-// @access Public
 exports.registerUser = async (req, res) => {
-  // Extract fields
   const { name, email, password, role, specialty } = req.body;
 
   try {
-    // Basic validation
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email, and password are required' });
     }
 
-    // Check if email is valid
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: 'Please include a valid email' });
     }
 
-    // Check password length
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
@@ -37,7 +30,7 @@ exports.registerUser = async (req, res) => {
       name,
       email,
       password,
-      role: role || 'patient', // Default to patient if no role specified
+      role: role || 'patient',
       specialty
     });
 
@@ -72,19 +65,14 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// @desc   Login user
-// @route  POST /api/auth/login
-// @access Public
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Basic validation
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Explicitly select the password field
     let user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -123,9 +111,6 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// @desc   Logout user
-// @route  POST /api/auth/logout
-// @access Public
 exports.logoutUser = async (req, res) => {
   try {
     res.json({ message: 'Logged out successfully' });
@@ -135,9 +120,6 @@ exports.logoutUser = async (req, res) => {
   }
 };
 
-// @desc   Get user profile
-// @route  GET /api/auth/profile
-// @access Private
 exports.getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -148,9 +130,6 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
-// @desc   Update user profile
-// @route  PUT /api/auth/profile
-// @access Private
 exports.updateUserProfile = async (req, res) => {
   const { name, email, specialty } = req.body;
 
@@ -161,7 +140,6 @@ exports.updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update fields if provided
     if (name) user.name = name;
     if (email) user.email = email;
     if (specialty) user.specialty = specialty;
@@ -184,14 +162,10 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-// @desc   Update password
-// @route  PUT /api/auth/password
-// @access Private
 exports.updatePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   try {
-    // Basic validation
     if (!oldPassword || !newPassword) {
       return res.status(400).json({ message: 'Old password and new password are required' });
     }
@@ -200,14 +174,12 @@ exports.updatePassword = async (req, res) => {
       return res.status(400).json({ message: 'New password must be at least 6 characters' });
     }
 
-    // Explicitly select the password field since it's not included by default
     const user = await User.findById(req.user.id).select('+password');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if user has a password
     if (!user.password) {
       return res.status(500).json({ message: 'User password not found' });
     }
@@ -218,11 +190,9 @@ exports.updatePassword = async (req, res) => {
       return res.status(400).json({ message: 'Invalid old password' });
     }
 
-    // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Update password directly to avoid double hashing by pre-save hook
     await User.findByIdAndUpdate(user.id, { password: hashedPassword });
 
     res.json({ message: 'Password updated successfully' });
@@ -232,9 +202,6 @@ exports.updatePassword = async (req, res) => {
   }
 };
 
-// @desc   Delete account
-// @route  DELETE /api/auth/account
-// @access Private
 exports.deleteAccount = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -252,9 +219,6 @@ exports.deleteAccount = async (req, res) => {
   }
 };
 
-// @desc   Refresh token
-// @route  POST /api/auth/refresh
-// @access Private
 exports.refreshToken = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -284,9 +248,6 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
-// @desc   Verify email
-// @route  GET /api/auth/verify-email
-// @access Public
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
@@ -295,8 +256,6 @@ exports.verifyEmail = async (req, res) => {
       return res.status(400).json({ message: 'Verification token is required' });
     }
 
-    // In a real implementation, you would verify the token against your database
-    // For now, we'll just send a success message
     res.json({ message: 'Email verified successfully' });
   } catch (err) {
     console.error('Email verification error:', err);
@@ -304,9 +263,6 @@ exports.verifyEmail = async (req, res) => {
   }
 };
 
-// @desc   Forgot password
-// @route  POST /api/auth/forgot-password
-// @access Public
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -321,15 +277,11 @@ exports.forgotPassword = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
-    
-    // In a real implementation, you would save this token to the database
-    // and send an email to the user with a link containing this token
     
     res.json({ 
       message: 'Password reset link sent to your email',
-      resetToken // In production, don't send this in the response
+      resetToken
     });
   } catch (err) {
     console.error('Forgot password error:', err);
@@ -337,9 +289,6 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// @desc   Reset password
-// @route  POST /api/auth/reset-password
-// @access Public
 exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
@@ -352,9 +301,6 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-    // In a real implementation, you would verify the token and update the password
-    // For now, we'll just send a success message
-    
     res.json({ message: 'Password reset successfully' });
   } catch (err) {
     console.error('Reset password error:', err);
@@ -362,9 +308,6 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// @desc   Resend verification email
-// @route  POST /api/auth/resend-verification
-// @access Public
 exports.resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
@@ -379,9 +322,6 @@ exports.resendVerification = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // In a real implementation, you would generate a new verification token
-    // and send an email to the user
-    
     res.json({ message: 'Verification email sent successfully' });
   } catch (err) {
     console.error('Resend verification error:', err);
