@@ -37,8 +37,8 @@ A RESTful API for managing clinic appointments, users, prescriptions, and medica
 
 ## Prerequisites
 
-- Node.js (v14.x or later)
-- npm (v6.x or later) or yarn
+- Node.js 
+- npm 
 - MongoDB Atlas account or local MongoDB instance
 - Git (for version control)
 
@@ -350,9 +350,6 @@ The system implements three user roles:
 3. Enable detailed logging by modifying the morgan configuration
 4. Verify environment variables are loaded correctly with the health check endpoint
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 

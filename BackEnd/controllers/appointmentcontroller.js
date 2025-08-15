@@ -4,23 +4,41 @@ const { validateAppointmentId } = require('../middleware');
 
 const createAppointment = async (req, res) => {
   try {
-    const { doctor, date, time, reason, notes, duration, isEmergency } = req.body;
-    const patient = req.user.id;
-    const doctorExists = await User.findById(doctor);
+    const { doctor, date, time, reason, notes, duration, isEmergency, patient: providedPatient } = req.body;
+    
+    // Determine patient based on user role
+    let patient;
+    if (req.user.role === 'doctor') {
+      // Doctors can create appointments for patients, so patient ID must be provided
+      if (!providedPatient) {
+        return res.status(400).json({ message: 'Patient ID is required when creating appointment as a doctor' });
+      }
+      patient = providedPatient;
+    } else {
+      // Patients create appointments for themselves
+      patient = req.user._id.toString();
+    }
+    
+    // If doctor ID is not provided, use the current doctor (for doctor-created appointments)
+    const doctorId = doctor || req.user._id.toString();
+    
+    const doctorExists = await User.findById(doctorId);
     if (!doctorExists) {
       return res.status(404).json({ message: 'Doctor not found' });
     }
+    
     const existingAppointment = await Appointment.findOne({
-      doctor,
+      doctor: doctorId,
       date: new Date(date),
       time
     });
     if (existingAppointment) {
       return res.status(400).json({ message: 'Time slot already booked' });
     }
+    
     const appointment = await Appointment.create({
       patient,
-      doctor,
+      doctor: doctorId,
       date: new Date(date),
       time,
       reason,
@@ -30,7 +48,8 @@ const createAppointment = async (req, res) => {
     });
     res.status(201).json(appointment);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error creating appointment:', error);
+    res.status(500).json({ message: 'Error creating appointment', error: error.message });
   }
 };
 
@@ -39,9 +58,9 @@ const getAppointments = async (req, res) => {
     const { status, doctor, date } = req.query;
     let filter = {};
     if (req.user.role === 'patient') {
-      filter.patient = req.user.id;
+      filter.patient = req.user._id.toString();
     } else if (req.user.role === 'doctor') {
-      filter.doctor = req.user.id;
+      filter.doctor = req.user._id.toString();
     }
     if (status) filter.status = status;
     if (doctor && req.user.role === 'admin') filter.doctor = doctor;
@@ -60,8 +79,8 @@ const getMyAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find({
       $or: [
-        { patient: req.user.id },
-        { doctor: req.user.id }
+        { patient: req.user._id.toString() },
+        { doctor: req.user._id.toString() }
       ]
     })
       .populate('patient', 'name email phone')

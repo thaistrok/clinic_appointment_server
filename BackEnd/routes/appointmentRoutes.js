@@ -12,7 +12,7 @@ const { validateAndAuthorizeAppointment } = require('../middleware');
 const router = express.Router();
 
 router.use(authenticate);
-router.post('/', authorize('patient', 'admin'), createAppointment);
+router.post('/', authorize('patient', 'admin', 'doctor'), createAppointment);
 router.get('/', getAppointments);
 router.get('/my', getMyAppointments);
 router.get('/:id', validateAndAuthorizeAppointment, getAppointmentById);
