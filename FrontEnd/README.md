@@ -1,12 +1,121 @@
-# React + Vite
+# Clinic Appointment System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React-based frontend application for a clinic appointment management system. This application allows patients and doctors to manage appointments, prescriptions, and user profiles through an intuitive user interface.
 
-Currently, two official plugins are available:
+## Technology Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Framework**: [React 19](https://reactjs.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Routing**: [React Router v7](https://reactrouter.com/)
+- **HTTP Client**: [Axios](https://axios-http.com/)
+- **Styling**: CSS Modules
+- **Development**: [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc)
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- [Node.js](https://nodejs.org/) (version 14 or higher)
+- [npm](https://www.npmjs.com/) (comes with Node.js) or [yarn](https://yarnpkg.com/)
+
+## Installation Instructions
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. Navigate to the frontend directory:
+   ```bash
+   cd FrontEnd
+   ```
+
+3. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+## Usage
+
+### Development Server
+
+To start the development server with hot module replacement:
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+The application will be available at `http://localhost:5173` by default.
+
+### Production Build
+
+To create a production build:
+
+```bash
+npm run build
+# or
+yarn build
+```
+
+### Preview Production Build
+
+To preview the production build locally:
+
+```bash
+npm run preview
+# or
+yarn preview
+```
+
+## Project Structure
+
+```
+FrontEnd/
+├── public/                 # Static assets
+├── src/
+│   ├── assets/             # Images and other assets
+│   ├── components/         # Reusable UI components
+│   ├── hooks/              # Custom React hooks
+│   ├── pages/              # Page components
+│   ├── services/           # API services and utilities
+│   ├── styles/             # CSS stylesheets
+│   ├── App.jsx             # Main application component
+│   └── main.jsx            # Application entry point
+├── index.html              # HTML template
+├── package.json            # Project dependencies and scripts
+└── vite.config.js          # Vite configuration
+```
+
+### Key Directories
+
+- **components/**: Contains reusable UI components like forms, lists, navigation, and authentication components
+- **pages/**: Contains page-level components that correspond to routes in the application
+- **services/**: Contains API service files for communicating with the backend and utility functions
+- **hooks/**: Contains custom React hooks for shared logic
+- **styles/**: Contains CSS files for styling components and pages
+
+## Available Scripts
+
+- `npm run dev` - Starts the development server
+- `npm run build` - Creates a production build
+- `npm run preview` - Previews the production build locally
+
+## Application Features
+
+- **User Authentication**: Login and registration functionality with role-based access control
+- **Appointment Management**: Create, view, edit, and delete appointments
+- **Prescription Management**: Create and view prescriptions linked to appointments
+- **User Profiles**: Manage user information and update passwords
+- **Role-based Dashboards**: Separate dashboards for patients and doctors
+
+## Contributing Guidelines
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+5. Push to the branch (`git push origin feature/AmazingFeature`)
+6. Open a pull request
+

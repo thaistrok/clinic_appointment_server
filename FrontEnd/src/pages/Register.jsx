@@ -7,7 +7,7 @@ const Register = () => {
     <div className="register-page">
       <div className="register-page-content">
         <div className="register-page-header">
-          <h1>Welcome to ClinicAppointment</h1>
+          <h1>Welcome to Dr.Yousif Clinic</h1>
           <p>Create a new account to get started</p>
         </div>
         <RegistrationForm />

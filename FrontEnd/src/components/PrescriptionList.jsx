@@ -78,18 +78,12 @@ const PrescriptionList = () => {
         <h2>{user && user.role === 'doctor' ? 'Prescriptions I\'ve Written' : 'My Prescriptions'}</h2>
       </div>
       
-      {/* Filter controls */}
+      
       <div className="prescription-controls">
         <div className="filter-controls">
-          <label>Filter: </label>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="all">All</option>
-            <option value="recent">Recent (30 days)</option>
-          </select>
-        </div>
+          </div>
       </div>
       
-      {/* Prescriptions list */}
       {prescriptionsToShow.length === 0 ? (
         <div className="no-prescriptions">
           <p>No prescriptions found.</p>

@@ -18,7 +18,7 @@ const handleLogout = () => {
     <header className="header">
       <div className="header-container">
         <div className="logo">
-          <Link to="/">ClinicAppointment</Link>
+          <Link to="/">Dr.Yousif Clinic</Link>
         </div>
         
         {isAuthenticated() && <Nav />}

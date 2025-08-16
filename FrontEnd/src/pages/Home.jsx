@@ -10,7 +10,7 @@ const Home = () => {
     <div className="home-page">
       <div className="hero-section">
         <div className="hero-content">
-          <h1>Welcome to ClinicAppointment</h1>
+          <h1>Welcome to Dr.Yousif Clinic</h1>
           <p>Your trusted platform for booking medical appointments</p>
           {!authenticated ? (
             <div className="hero-buttons">

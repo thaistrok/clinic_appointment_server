@@ -130,29 +130,8 @@ const AppointmentList = () => {
       )}
 
       <div className="filters">
-        <div className="filter-group">
-          <label htmlFor="filter">Filter:</label>
-          <select
-            id="filter"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">All Appointments</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="past">Past</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="sortBy">Sort by:</label>
-          <select
-            id="sortBy"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="date">Date</option>
-            <option value="status">Status</option>
-          </select>
+        <div className="filter-group"> 
+        </div><div className="filter-group">
         </div>
       </div>
 

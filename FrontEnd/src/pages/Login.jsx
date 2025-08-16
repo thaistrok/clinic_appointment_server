@@ -7,7 +7,7 @@ const Login = () => {
     <div className="login-page">
       <div className="login-page-content">
         <div className="login-page-header">
-          <h1>Welcome to ClinicAppointment</h1>
+          <h1>Welcome to Dr.Yousif Clinic</h1>
           <p>Please sign in to your account</p>
         </div>
         <LoginForm />
