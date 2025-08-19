@@ -1,353 +1,339 @@
-# Clinic Appointment System - Backend
+![Clinic Appointment](C:\Users\DELL\Desktop\{5029DE91-F34F-4B69-B0FD-34A726E42FE7}.png)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Node.js](https://img.shields.io/badge/Node.js-14.x%20or%20later-brightgreen)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-blue)
+![ERD](C:\Users\DELL\Desktop\{8F56986C-9C5C-4995-B763-B9323EF99DC6}.png)
 
-> Clinic Appointment Management System using MERN stack
+[#FRONT END](#font-end)
+[#Clinic_Appointment_Front](https://github.com/thaistrok/Clinic_Appointment_Front)
 
-A RESTful API for managing clinic appointments, users, prescriptions, and medications with JWT authentication and role-based access control.
+[#BACK END](#back-end)
+[#Clinic_Appointment_Back](https://github.com/thaistrok/Clinic_Appointment_Back)
 
-## Table of Contents
 
-- [Technology Stack](#technology-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Database Setup](#database-setup)
-- [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
-- [Development Guidelines](#development-guidelines)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
-- [Contact](#contact)
+
+
+# Clinic Appointment System - Backend Server
+
+A full-stack web application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) for a clinic appointment management system. It enables patients and staff to securely register, authenticate, and manage medical appointments. The app features a responsive, user-friendly interface with intuitive navigation and real-time updates to enhance accessibility and efficiency. Users can book, view, reschedule, or cancel appointments, receive email notifications, manage patient profiles, and handle prescriptions and medications. JWT-based authentication ensures secure access to role-based features, while MongoDB handles all CRUD operations for users, appointments, and medical records—delivering scalable, reliable performance across devices.
+
+## Features
+
+- User authentication and authorization (JWT-based)
+- Role-based access control (patient, doctor, admin)
+- Appointment scheduling and management
+- Prescription creation and management
+- Medication database
+- User profile management
+- RESTful API design
+- Input validation and error handling
 
 ## Technology Stack
 
-- **Runtime Environment**: [Node.js](https://nodejs.org/) (v14.x or later)
-- **Web Framework**: [Express.js](https://expressjs.com/)
-- **Database**: [MongoDB](https://www.mongodb.com/) with [Mongoose ODM](https://mongoosejs.com/)
-- **Authentication**: [JSON Web Tokens (JWT)](https://jwt.io/)
-- **Password Hashing**: [bcrypt](https://www.npmjs.com/package/bcrypt)
-- **Validation**: [express-validator](https://express-validator.github.io/docs/)
-- **CORS Handling**: [cors](https://www.npmjs.com/package/cors)
-- **Request Logging**: [morgan](https://www.npmjs.com/package/morgan)
-- **Environment Variables**: [dotenv](https://www.npmjs.com/package/dotenv)
+- **Node.js** - JavaScript runtime environment
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - Object Data Modeling (ODM) library
+- **JSON Web Tokens (JWT)** - Authentication and authorization
+- **Bcrypt** - Password hashing
+- **Dotenv** - Environment variable management
+- **Cors** - Cross-Origin Resource Sharing handling
+- **Morgan** - HTTP request logging
 
 ## Prerequisites
 
-- Node.js 
-- npm 
-- MongoDB Atlas account or local MongoDB instance
-- Git (for version control)
+Before you begin, ensure you have the following installed:
+- Node.js (v14 or higher)
+- npm (v6 or higher) or yarn
+- MongoDB database (local or cloud instance)
 
 ## Installation
 
 1. Clone the repository:
-```bash
-git clone <repository-url>
+   ```bash
+   git clone <repository-url>
+   cd clinic_appointment_server
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the root directory with the following variables:
+   ```env
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret_key
+   PORT=5000
+   JWT_EXPIRE=1h
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+   Or for production:
+   ```bash
+   npm start
+   ```
+
+## Configuration
+
+The application requires the following environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MONGO_URI` | MongoDB connection string | None (required) |
+| `JWT_SECRET` | Secret key for JWT token generation | None (required) |
+| `PORT` | Server port | 5000 |
+| `JWT_EXPIRE` | JWT token expiration time | 1h |
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/profile` - Get user profile
+- `PUT /api/auth/password` - Update user password
+
+### Users
+- `GET /api/users` - Get all users (admin only)
+- `GET /api/users/doctors` - Get all doctors
+- `POST /api/users/doctor` - Add a new doctor (admin only)
+- `GET /api/users/appointments` - Get appointments for current user
+- `GET /api/users/:id` - Get user by ID
+- `PUT /api/users/:id` - Update user
+- `DELETE /api/users/:id` - Delete user (admin only)
+
+### Appointments
+- `POST /api/appointments` - Create a new appointment
+- `GET /api/appointments` - Get all appointments (admin only)
+- `GET /api/appointments/my` - Get appointments for current user
+- `GET /api/appointments/:id` - Get appointment by ID
+- `PUT /api/appointments/:id` - Update appointment
+- `DELETE /api/appointments/:id` - Delete appointment
+
+### Prescriptions
+- `GET /api/prescriptions` - Get all prescriptions
+- `GET /api/prescriptions/:id` - Get prescription by ID
+- `POST /api/prescriptions` - Create a new prescription (doctor/admin only)
+- `PUT /api/prescriptions/:id` - Update prescription (doctor/admin only)
+- `DELETE /api/prescriptions/:id` - Delete prescription (doctor/admin only)
+
+### Medications
+- `GET /api/medications` - Get all medications
+- `GET /api/medications/:id` - Get medication by ID
+- `POST /api/medications` - Create a new medication
+- `PUT /api/medications/:id` - Update medication
+- `DELETE /api/medications/:id` - Delete medication
+
+## Project Structure
+
+```
+clinic_appointment_server/
+├── controllers/          # Request handlers
+├── db/                  # Database connection
+├── middleware/          # Authentication and authorization
+├── models/              # Database models
+├── routes/              # API route definitions
+├── .env                 # Environment variables
+├── server.js            # Application entry point
+├── package.json         # Project dependencies and scripts
+└── README.md            # This file
 ```
 
-2. Navigate to the backend directory:
-```bash
-cd BackEnd
+## Data Models
+
+### User
+- `name` (String) - User's full name
+- `email` (String) - Unique email address
+- `password` (String) - Hashed password
+- `role` (String) - User role (patient/doctor/admin)
+- `specialty` (String) - Doctor's specialty (for doctors)
+- `experience` (String) - Doctor's experience (for doctors)
+
+### Appointment
+- `patient` (ObjectId) - Reference to User (patient)
+- `doctor` (ObjectId) - Reference to User (doctor)
+- `date` (Date) - Appointment date
+- `time` (String) - Appointment time
+- `status` (String) - Appointment status (scheduled/confirmed/completed/cancelled)
+- `reason` (String) - Reason for appointment
+- `notes` (String) - Additional notes
+- `duration` (Number) - Duration in minutes (default: 30)
+- `isEmergency` (Boolean) - Emergency appointment flag
+
+### Prescription
+- `appointment` (ObjectId) - Reference to Appointment
+- `doctor` (ObjectId) - Reference to User (doctor)
+- `patient` (ObjectId) - Reference to User (patient)
+- `medications` (Array) - List of prescribed medications
+- `diagnosis` (String) - Medical diagnosis
+
+### Medication
+- `name` (String) - Medication name
+- `dosage` (String) - Dosage information
+- `frequency` (String) - How often to take the medication
+
+## Authentication & Authorization
+
+The API uses JWT (JSON Web Tokens) for authentication. Users must include a valid JWT token in the Authorization header of their requests:
+
+```
+Authorization: Bearer <your-jwt-token>
 ```
 
-3. Install dependencies:
-```bash
-npm install
-```
+Role-based access control is implemented:
+- **Admin**: Full access to all resources
+- **Doctor**: Can manage appointments and prescriptions for their patients
+- **Patient**: Can view and manage their own appointments and prescriptions
 
-4. Create a `.env` file based on the configuration section below
+## Contributing
 
-5. Start the development server:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Health Check
+
+A health check endpoint is available at:
+- `GET /api/health` - Server status and timestamp
+
+## Development
+
+For development with auto-restart:
 ```bash
 npm run dev
 ```
 
-Or start the production server:
+This uses nodemon to automatically restart the server when code changes are detected.
+
+
+#back-end🔧
+- [🎨 Front End](#front-end)
+
+# Clinic Appointment System - Frontend
+
+A full-stack web application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) for a clinic appointment management system. It enables patients and staff to securely register, authenticate, and manage medical appointments. The app features a responsive, user-friendly interface with intuitive navigation and real-time updates to enhance accessibility and efficiency. Users can book, view, reschedule, or cancel appointments, receive email notifications, manage patient profiles, and handle prescriptions and medications. JWT-based authentication ensures secure access to role-based features, while MongoDB handles all CRUD operations for users, appointments, and medical records—delivering scalable, reliable performance across devices.
+
+## Technology Stack
+
+- **Framework**: [React 19](https://reactjs.org/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Routing**: [React Router v7](https://reactrouter.com/)
+- **HTTP Client**: [Axios](https://axios-http.com/)
+- **Styling**: CSS Modules
+- **Development**: [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc)
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 14 or higher)
+- [npm](https://www.npmjs.com/) (comes with Node.js) or [yarn](https://yarnpkg.com/)
+
+## Installation Instructions
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. Navigate to the frontend directory:
+   ```bash
+   cd FrontEnd
+   ```
+
+3. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+## Usage
+
+### Development Server
+
+To start the development server with hot module replacement:
+
 ```bash
-npm start
+npm run dev
+# or
+yarn dev
 ```
 
-## Configuration
+The application will be available at `http://localhost:5173` by default.
 
-Create a `.env` file in the `BackEnd` directory with the following environment variables:
+### Production Build
 
-```env
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database-name>?retryWrites=true
-JWT_SECRET=your_jwt_secret_key
-PORT=5000
-JWT_EXPIRE=1h
+To create a production build:
+
+```bash
+npm run build
+# or
+yarn build
 ```
 
-### Environment Variables Explained
+### Preview Production Build
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `MONGO_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
-| `JWT_SECRET` | Secret key for JWT token signing | `my_jwt_secret_key` |
-| `PORT` | Server port | `5000` |
-| `JWT_EXPIRE` | JWT token expiration time | `1h`, `5d` |
+To preview the production build locally:
 
-## Database Setup
-
-The application uses MongoDB with Mongoose ODM. The database schema includes:
-
-### User Model
-- `name`: String (required)
-- `email`: String (required, unique)
-- `password`: String (required, not selected by default)
-- `role`: String (enum: 'patient', 'doctor', 'admin', default: 'patient')
-- `specialty`: String (for doctors)
-- `experience`: String (for doctors)
-
-### Appointment Model
-- `patient`: ObjectId (ref: 'User', required)
-- `doctor`: ObjectId (ref: 'User', required)
-- `date`: Date (required)
-- `time`: String (required)
-- `status`: String (enum: 'scheduled', 'confirmed', 'completed', 'cancelled', default: 'scheduled')
-- `reason`: String (required)
-- `notes`: String
-- `duration`: Number (in minutes, default: 30)
-- `isEmergency`: Boolean (default: false)
-
-### Prescription Model
-- `appointment`: ObjectId (ref: 'Appointment', required)
-- `doctor`: ObjectId (ref: 'User', required)
-- `patient`: ObjectId (ref: 'User', required)
-- `medications`: Array of objects with name, dosage, and frequency
-- `diagnosis`: String (required)
-
-### Medication Model
-- `name`: String (required, indexed)
-- `dosage`: String (required)
-- `frequency`: String (required)
-
-## API Documentation
-
-### Authentication Endpoints
-
-| Method | Endpoint | Description | Authentication |
-|--------|----------|-------------|----------------|
-| POST | `/api/auth/register` | Register a new user | None |
-| POST | `/api/auth/login` | Login user | None |
-| GET | `/api/auth/profile` | Get user profile | Bearer Token |
-| PUT | `/api/auth/password` | Update user password | Bearer Token |
-
-### User Endpoints
-
-| Method | Endpoint | Description | Authentication |
-|--------|----------|-------------|----------------|
-| GET | `/api/users` | Get all users | Bearer Token |
-| GET | `/api/users/doctors` | Get all doctors | Bearer Token |
-| GET | `/api/users/:id` | Get user by ID | Bearer Token |
-| PUT | `/api/users/:id` | Update user | Bearer Token |
-| DELETE | `/api/users/:id` | Delete user | Bearer Token |
-
-### Appointment Endpoints
-
-| Method | Endpoint | Description | Authentication |
-|--------|----------|-------------|----------------|
-| POST | `/api/appointments` | Create new appointment | Bearer Token (Patient/Admin) |
-| GET | `/api/appointments` | Get all appointments | Bearer Token (Admin) |
-| GET | `/api/appointments/my` | Get current user's appointments | Bearer Token |
-| GET | `/api/appointments/:id` | Get appointment by ID | Bearer Token |
-| PUT | `/api/appointments/:id` | Update appointment | Bearer Token |
-| DELETE | `/api/appointments/:id` | Delete appointment | Bearer Token |
-
-### Prescription Endpoints
-
-| Method | Endpoint | Description | Authentication |
-|--------|----------|-------------|----------------|
-| POST | `/api/prescriptions` | Create new prescription | Bearer Token (Doctor) |
-| GET | `/api/prescriptions` | Get all prescriptions | Bearer Token (Admin) |
-| GET | `/api/prescriptions/my` | Get current user's prescriptions | Bearer Token |
-| GET | `/api/prescriptions/appointments/:appointmentId` | Get prescriptions by appointment | Bearer Token |
-| GET | `/api/prescriptions/:id` | Get prescription by ID | Bearer Token |
-| PUT | `/api/prescriptions/:id` | Update prescription | Bearer Token (Doctor) |
-| DELETE | `/api/prescriptions/:id` | Delete prescription | Bearer Token (Doctor) |
-
-### Medication Endpoints
-
-| Method | Endpoint | Description | Authentication |
-|--------|----------|-------------|----------------|
-| POST | `/api/medications` | Create new medication | Bearer Token (Admin) |
-| GET | `/api/medications` | Get all medications | None |
-| GET | `/api/medications/:id` | Get medication by ID | None |
-| PUT | `/api/medications/:id` | Update medication | Bearer Token (Admin) |
-| DELETE | `/api/medications/:id` | Delete medication | Bearer Token (Admin) |
-
-### Health Check Endpoint
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Check server health |
-
-## Usage Examples
-
-### User Registration
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "password": "password123",
-    "role": "patient"
-  }'
-```
-
-### User Login
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "password123"
-  }'
-```
-
-### Create Appointment (Patient)
-```bash
-curl -X POST http://localhost:5000/api/appointments \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "patient": "PATIENT_ID",
-    "doctor": "DOCTOR_ID",
-    "date": "2023-12-01",
-    "time": "10:00",
-    "reason": "Regular checkup"
-  }'
+npm run preview
+# or
+yarn preview
 ```
 
 ## Project Structure
 
 ```
-BackEnd/
-    controllers/
-        AuthController.js
-        appointmentcontroller.js
-        medicationController.js
-        prescriptionController.js
-        userController.js
-    db/
-       index.js
-    middleware/
-       index.js
-    models/
-        Medication.js
-        appointment.js
-        prescription.js
-        user.js
-    routes/
-       AuthRouter.js
-       appointmentRoutes.js
-       medicationRoutes.js
-       prescriptionRoutes.js
-       userRoutes.js
-    .env
-    package.json
-    server.js
+FrontEnd/
+    public/                 # Static assets
+    src/
+        assets/             # Images and other assets
+        components/         # Reusable UI components
+        hooks/              # Custom React hooks
+        pages/              # Page components
+        services/           # API services and utilities
+        styles/             # CSS stylesheets
+        App.jsx             # Main application component
+        main.jsx            # Application entry point
+    index.html              # HTML template
+    package.json            # Project dependencies and scripts
+    vite.config.js          # Vite configuration
 ```
 
-### Key Files
+### Key Directories
 
-- **server.js**: Entry point of the application
-- **db/index.js**: Database connection setup
-- **middleware/index.js**: Authentication and authorization middleware
-- **models/**: Mongoose models for data structure
-- **controllers/**: Request handlers for different routes
-- **routes/**: API route definitions
+- **components/**: Contains reusable UI components like forms, lists, navigation, and authentication components
+- **pages/**: Contains page-level components that correspond to routes in the application
+- **services/**: Contains API service files for communicating with the backend and utility functions
+- **hooks/**: Contains custom React hooks for shared logic
+- **styles/**: Contains CSS files for styling components and pages
 
-## Development Guidelines
+## Available Scripts
 
-### Coding Standards
+- `npm run dev` - Starts the development server
+- `npm run build` - Creates a production build
+- `npm run preview` - Previews the production build locally
 
-1. Use consistent naming conventions:
-   - Camel case for variables and functions (`getUserById`)
-   - Pascal case for classes and models (`User`, `Appointment`)
-   - Constants in uppercase (`JWT_SECRET`)
+## Application Features
 
-2. Error Handling:
-   - Always handle errors with try/catch blocks
-   - Return appropriate HTTP status codes
-   - Log errors for debugging purposes
+- **User Authentication**: Login and registration functionality with role-based access control
+- **Appointment Management**: Create, view, edit, and delete appointments
+- **Prescription Management**: Create and view prescriptions linked to appointments
+- **User Profiles**: Manage user information and update passwords
+- **Role-based Dashboards**: Separate dashboards for patients and doctors
 
-3. Security Practices:
-   - Never commit sensitive data (passwords, API keys)
-   - Use environment variables for configuration
-   - Implement proper authentication and authorization
-   - Validate all user inputs
+## Contributing Guidelines
 
-### Role-Based Access Control
-
-The system implements three user roles:
-- **Patient**: Can create and manage their own appointments
-- **Doctor**: Can manage appointments assigned to them and create prescriptions
-- **Admin**: Can manage all users, appointments, prescriptions, and medications
-
-### Testing
-
-1. Ensure all CRUD operations work correctly
-2. Test authentication and authorization
-3. Verify data validation
-4. Test error handling scenarios
-
-## Deployment
-
-### Production Deployment Steps
-
-1. Set up MongoDB Atlas or production MongoDB instance
-2. Configure environment variables for production
-3. Build and deploy the application:
-   ```bash
-   npm start
-   ```
-4. Set up reverse proxy (e.g., Nginx) if needed
-5. Configure SSL certificate for HTTPS
-
-### Hosting Options
-
-- [Heroku](https://www.heroku.com/)
-- [DigitalOcean App Platform](https://www.digitalocean.com/products/app-platform)
-- [AWS Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/)
-- [Google Cloud Run](https://cloud.google.com/run)
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Error**
-   - Check if `MONGO_URI` is correctly set in `.env`
-   - Ensure MongoDB Atlas IP whitelist includes your IP address
-   - Verify network connectivity to MongoDB
-
-2. **JWT Authentication Error**
-   - Confirm `JWT_SECRET` is set in `.env`
-   - Check if the token has expired
-   - Verify the token format in the Authorization header
-
-3. **CORS Error**
-   - Check the `cors` configuration in `server.js`
-   - Ensure frontend URL is included in the origin list
-
-4. **Port Already in Use**
-   - Change the `PORT` value in `.env`
-   - Kill the process using the port:
-     ```bash
-     lsof -i :5000
-     kill -9 <PID>
-     ```
-
-### Debugging Tips
-
-1. Check server logs for error messages
-2. Use tools like Postman to test API endpoints
-3. Enable detailed logging by modifying the morgan configuration
-4. Verify environment variables are loaded correctly with the health check endpoint
-
-
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+5. Push to the branch (`git push origin feature/AmazingFeature`)
+6. Open a pull request
