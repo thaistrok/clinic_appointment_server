@@ -1,6 +1,35 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
+function stripToken(req) {
+  try {
+    const authHeader = req.headers['authorization'];
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.split(' ')[1];
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error stripping token:', error);
+    return null;
+  }
+}
+
+function verifyToken(token) {
+  try {
+    if (!token) {
+      throw new Error('No token provided');
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    throw error;
+  }
+}
+
 const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
