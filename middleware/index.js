@@ -1,63 +1,36 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const stripToken = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      res.locals.token = token;
-      return next();
+      
+      if (!token) {
+        return res.status(401).json({ message: 'Access denied. No token provided.' });
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.user.id).select('-password');
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid token.' });
+      }
+
+      // Debug logging to see user data
+      console.log('Authenticated user:', {
+        id: user._id,
+        role: user.role,
+        name: user.name
+      });
+
+      req.user = user;
+      next();
+    } else {
+      res.status(401).json({ status: 'Error', message: 'Unauthorized' });
     }
-    res.status(401).json({ status: 'Error', message: 'Unauthorized' });
-  } catch (error) {
-    console.log(error);
-    res.status(401).json({ status: 'Error', message: 'Strip Token Error!' });
-  }
-};
-
-const verifyToken = (req, res, next) => {
-    const {token} = res.locals;
-
-    try {
-        let payload = jwt.verify(token, process.env.JWT_SECRET);
-
-        if (payload) {
-            res.locals.payload = payload;
-            return next();
-        }
-        res.status(401).send({ status: 'Error', message: 'Unauthorized'});
-    } catch (error) {
-        console.log(error);
-        res.status(401).send({ status: 'Error', msg: 'Verify Token Err!'});
-    }
-};
-
-const authenticate = async (req, res, next) => {
-  try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      return res.status(401).json({ message: 'Access denied. No token provided.' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.user.id).select('-password');
-    
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid token.' });
-    }
-
-    // Debug logging to see user data
-    console.log('Authenticated user:', {
-      id: user._id,
-      role: user.role,
-      name: user.name
-    });
-
-    req.user = user;
-    next();
   } catch (error) {
     console.error('Authentication error:', error);
     res.status(401).json({ message: 'Invalid token.' });
