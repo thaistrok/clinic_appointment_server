@@ -11,7 +11,7 @@ const appointmentSchema = new mongoose.Schema(
         default: 'scheduled'},
         reason: {type: String,required: true},
         notes: {type: String},
-        duration: {type: Number, default: 30}, // in minutes
+        duration: {type: Number, default: 30}, 
         isEmergency: {type: Boolean, default: false}
   },
  {timestamps: true}

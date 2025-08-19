@@ -2,6 +2,8 @@
 
 A modern React-based frontend application for a clinic appointment management system. This application allows patients and doctors to manage appointments, prescriptions, and user profiles through an intuitive user interface.
 
+A full-stack web application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) for a Clinic Appointment System. It enables users to securely register, authenticate, and explore pets available for adoption. The app features a responsive, mobile-first design with smooth animations to enhance user engagement. Users can browse adoptable pets, submit and manage adoption requests, add or edit pet listings, and update their user profiles. JWT-based authentication protects user-specific features, while MongoDB efficiently manages all CRUD operations for users, pets, and adoption requests—ensuring scalable, real-time performance across devices.
+
 ## Technology Stack
 
 - **Framework**: [React 19](https://reactjs.org/)
@@ -73,19 +75,19 @@ yarn preview
 
 ```
 FrontEnd/
-├── public/                 # Static assets
-├── src/
-│   ├── assets/             # Images and other assets
-│   ├── components/         # Reusable UI components
-│   ├── hooks/              # Custom React hooks
-│   ├── pages/              # Page components
-│   ├── services/           # API services and utilities
-│   ├── styles/             # CSS stylesheets
-│   ├── App.jsx             # Main application component
-│   └── main.jsx            # Application entry point
-├── index.html              # HTML template
-├── package.json            # Project dependencies and scripts
-└── vite.config.js          # Vite configuration
+    public/                 # Static assets
+    src/
+        assets/             # Images and other assets
+        components/         # Reusable UI components
+        hooks/              # Custom React hooks
+        pages/              # Page components
+        services/           # API services and utilities
+        styles/             # CSS stylesheets
+        App.jsx             # Main application component
+        main.jsx            # Application entry point
+    index.html              # HTML template
+    package.json            # Project dependencies and scripts
+    vite.config.js          # Vite configuration
 ```
 
 ### Key Directories

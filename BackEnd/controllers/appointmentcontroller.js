@@ -6,20 +6,20 @@ const createAppointment = async (req, res) => {
   try {
     const { doctor, date, time, reason, notes, duration, isEmergency, patient: providedPatient } = req.body;
     
-    // Determine patient based on user role
+    
     let patient;
     if (req.user.role === 'doctor') {
-      // Doctors can create appointments for patients, so patient ID must be provided
+      
       if (!providedPatient) {
         return res.status(400).json({ message: 'Patient ID is required when creating appointment as a doctor' });
       }
       patient = providedPatient;
     } else {
-      // Patients create appointments for themselves
+     
       patient = req.user._id.toString();
     }
     
-    // If doctor ID is not provided, use the current doctor (for doctor-created appointments)
+    
     const doctorId = doctor || req.user._id.toString();
     
     const doctorExists = await User.findById(doctorId);

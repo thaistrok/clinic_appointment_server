@@ -228,30 +228,30 @@ curl -X POST http://localhost:5000/api/appointments \
 
 ```
 BackEnd/
-├── controllers/
-│   ├── AuthController.js
-│   ├── appointmentcontroller.js
-│   ├── medicationController.js
-│   ├── prescriptionController.js
-│   └── userController.js
-├── db/
-│   └── index.js
-├── middleware/
-│   └── index.js
-├── models/
-│   ├── Medication.js
-│   ├── appointment.js
-│   ├── prescription.js
-│   └── user.js
-├── routes/
-│   ├── AuthRouter.js
-│   ├── appointmentRoutes.js
-│   ├── medicationRoutes.js
-│   ├── prescriptionRoutes.js
-│   └── userRoutes.js
-├── .env
-├── package.json
-└── server.js
+    controllers/
+        AuthController.js
+        appointmentcontroller.js
+        medicationController.js
+        prescriptionController.js
+        userController.js
+    db/
+       index.js
+    middleware/
+       index.js
+    models/
+        Medication.js
+        appointment.js
+        prescription.js
+        user.js
+    routes/
+       AuthRouter.js
+       appointmentRoutes.js
+       medicationRoutes.js
+       prescriptionRoutes.js
+       userRoutes.js
+    .env
+    package.json
+    server.js
 ```
 
 ### Key Files
@@ -351,10 +351,3 @@ The system implements three user roles:
 4. Verify environment variables are loaded correctly with the health check endpoint
 
 
-## Contact
-
-For support or queries, please contact the development team.
-
----
-
-*Clinic Appointment System API - Streamlining healthcare management through technology*
