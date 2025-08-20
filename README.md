@@ -12,7 +12,7 @@
 - [🎨 Front End](#front-end)
 
 # Deployed link:
-[Clinic_Appointment](bawdy-suit.surge.sh)
+[Clinic_Appointment](clinic-appointment-fix.surge.sh)
 
 
 # Render deploed Link:
