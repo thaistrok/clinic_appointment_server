@@ -71,9 +71,27 @@ const deleteUser = async (req, res) => {
 
 const getDoctors = async (req, res) => {
   try {
+    console.log('Fetching doctors list');
     const doctors = await User.find({ role: 'doctor', isActive: true }).select('-password');
+    console.log(`Found ${doctors.length} doctors`);
     res.json(doctors);
   } catch (error) {
+    console.error('Error fetching doctors:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getPatients = async (req, res) => {
+  try {
+    // Only allow doctors and admins to get patient lists
+    if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
+    }
+    
+    const patients = await User.find({ role: 'patient', isActive: true }).select('name email');
+    res.json(patients);
+  } catch (error) {
+    console.error('Error fetching patients:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -142,6 +160,7 @@ module.exports = {
   updateUser,
   deleteUser,
   getDoctors,
+  getPatients,
   addDoctor,
   getAppointmentByUser
 };

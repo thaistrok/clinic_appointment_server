@@ -6,15 +6,17 @@ const {
   deleteUser,
   getDoctors,
   addDoctor,
-  getAppointmentByUser
+  getAppointmentByUser,
+  getPatients
 } = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware');
 const router = express.Router();
 
 router.use(authenticate);
-router.get('/', authorize('admin'), getAllUsers);
+
+// More specific routes should come before general ones
 router.get('/doctors', getDoctors);
-router.post('/doctor', authorize('admin'), addDoctor);
+router.get('/patients', getPatients);
 router.get('/appointments', authorize('doctor', 'patient'), getAppointmentByUser);
 router.get('/:id', getUserById);
 router.put('/:id', (req, res, next) => {
@@ -24,4 +26,9 @@ router.put('/:id', (req, res, next) => {
   return res.status(403).json({ message: 'Access denied' });
 }, updateUser);
 router.delete('/:id', authorize('admin'), deleteUser);
+
+// General routes should come after specific ones
+router.post('/doctor', authorize('admin'), addDoctor);
+router.get('/', authorize('admin'), getAllUsers);
+
 module.exports = router;

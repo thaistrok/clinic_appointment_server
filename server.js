@@ -23,10 +23,38 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: ['http://localhost:5173','http://127.0.0.1:5173','http://localhost:5174','clinic-appointment-fix.surge.sh'],
-  credentials: true
-}));
+// Configure CORS to allow all origins in development, and specific origins in production
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'https://crooked-rainstorm.surge.sh'
+    ];
+    
+    // In development, allow all origins
+    if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+      callback(null, true);
+    } else {
+      // In production, check against allowed origins
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
